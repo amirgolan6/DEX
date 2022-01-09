@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
-  description: Etherium Crowdfunding API
+  description: DEX API
   version: 1.0.0
-  title: Etherium Crowdfunding - Amir Golan
+  title: DEX - Amir Golan
   contact:
     email: amirgolan6@gmail.com
   license:
