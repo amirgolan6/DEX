@@ -6,7 +6,6 @@ from web3.middleware import geth_poa_middleware
 from solc import compile_standard
 import json, os
 from eth_account.messages import encode_defunct
-from server_utilities import new_fund, end_fund
 w3 = Web3(Web3.HTTPProvider(os.environ.get("ETH_HOST")))
 w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
@@ -58,15 +57,6 @@ class ClientContractManager:
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
         contract_address = tx_receipt["contractAddress"]
-
-        # try:
-        #     new_fund(contract_address, owner1, owner2, owner3, name, description)
-        # except Exception as e:
-        #     print("Failed to contact manager")
-        #     return {
-        #         "result": "success",
-        #         "fund_address": contract_address
-        #     }
 
         return {
             "result": "success",

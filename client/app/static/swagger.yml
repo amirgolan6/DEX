@@ -151,216 +151,24 @@ paths:
           description: OK
           schema:
             type: string
-  # Contract Operations
-  "/api/campaign/list":
-    get:
-      tags:
-      - Campaigns
-      summary: Get all known campaigns
-      responses:
-        '200':
-          description: OK
-          schema:
-            type: string
-  "/api/campaign/check_server":
-    get:
-      tags:
-      - Accounts
-      summary: Returns a list of fund raisers if server is live.
-      responses:
-        '200':
-          description: OK
-          schema:
-            type: string
-  "/api/campaign/info":
-    get:
-      tags:
-      - Campaigns
-      parameters:
-        - in: query
-          name: address
-          schema:
-            type: string
-          required: true
-          description: The address of the fundraiser, can be found in using list
-      summary: Get campaign information by fundraiser address on blockchain
-      responses:
-        '200':
-          description: OK
-          schema:
-            type: string
-  "/api/campaign/create":
+
+
+  # DEX
+  "/api/exchange/create":
     post:
       tags:
-      - Campaigns
+      - DEX
       parameters:
         - in: query
           name: account
           schema:
             type: string
           required: true
-          description: The public key of the account to create the campaign. Must be unlocked in wallet
-        - in: query
-          name: owner1
-          schema:
-            type: string
-          required: true
-          description: Each campaign must have 3 different owners
-        - in: query
-          name: owner2
-          schema:
-            type: string
-          required: true
-          description: Each campaign must have 3 different owners
-        - in: query
-          name: owner3
-          schema:
-            type: string
-          required: true
-          description: Each campaign must have 3 different owners
-        - in: query
-          name: name
-          schema:
-            type: string
-          required: true
-          description: The name of the campaign
-        - in: query
-          name: description
-          schema:
-            type: string
-          required: true
-          description: A short description of the campaign
-        - in: query
-          name: goal
-          schema:
-            type: integer
-          required: true
-          description: The goal to reach in wei
-        - in: query
-          name: expires
-          schema:
-            type: string
-          required: true
-          description: The date where the campaign fundraising ends. Syntax YY-MM-DD, HH:MM:SS
-      summary: Create a new campaign
+          description: Public key of account to invoke
+      summary: Created DEX contract and returns its address.
       responses:
         '200':
           description: OK
           schema:
             type: string
-  "/api/campaign/fund":
-    post:
-      tags:
-      - Campaigns
-      parameters:
-        - in: query
-          name: account
-          schema:
-            type: string
-          required: true
-          description: The public key of the account to send the funds from. Must be unlocked in wallet
-        - in: query
-          name: fund_address
-          schema:
-            type: string
-          required: true
-          description: The address of the fund contract on the blockchain. Can use list to get fund addresses.
-        - in: query
-          name: amount
-          schema:
-            type: int
-          required: true
-          description: The amount of wei to send to the campaign.
-      summary: Send funds to a particuler crowd funding fund.
-      responses:
-        '200':
-          description: OK
-          schema:
-            type: string
-  "/api/campaign/withdraw":
-    post:
-      tags:
-      - Campaigns
-      parameters:
-        - in: query
-          name: dest_account
-          schema:
-            type: string
-          required: true
-          description: The public key of the account to send the funds to.
-        - in: query
-          name: fund_address
-          schema:
-            type: string
-          required: true
-          description: The address of the fund contract on the blockchain. Can use list to get fund addresses.
-        - in: query
-          name: account
-          schema:
-            type: string
-          required: true
-          description: The account that will authorize the withdrawal
-        - in: query
-          name: secondSignature
-          schema:
-            type: string
-          required: true
-          description: Signed message authorizing the transfer from a second authorized signer.
-      summary: Withdraw all balanace from a finished fund raiser.
-      responses:
-        '200':
-          description: OK
-          schema:
-            type: string
-  "/api/campaign/signwithdrawal":
-    post:
-      tags:
-      - Campaigns
-      parameters:
-        - in: query
-          name: dest_account
-          schema:
-            type: string
-          required: true
-          description: The public key of the account to send the funds to.
-        - in: query
-          name: fund_address
-          schema:
-            type: string
-          required: true
-          description: The address of the fund contract on the blockchain. Can use list to get fund addresses.
-        - in: query
-          name: account
-          schema:
-            type: string
-          required: true
-          description: The account that will authorize the withdrawal.
-      summary: Produce a signature (1 out of 2 needed) to withdraw funds from a fundraiser to an account.
-      responses:
-        '200':
-          description: OK
-          schema:
-            type: string
-  "/api/campaign/refund":
-    post:
-      tags:
-      - Campaigns
-      parameters:
-        - in: query
-          name: account
-          schema:
-            type: string
-          required: true
-          description: The public key of the account to send the refund to. Must be an account that funded this project.
-        - in: query
-          name: fund_address
-          schema:
-            type: string
-          required: true
-          description: The address of the fund contract on the blockchain. Can use list to get fund addresses.
-      summary: Get refund for failed funds.
-      responses:
-        '200':
-          description: OK
-          schema:
-            type: string
+

@@ -2,7 +2,6 @@ import os
 
 from client_contract_manager import ClientContractManager
 from wallet.wallet import EthWallet
-from server_utilities import get_list, get_info, new_fund, end_fund
 
 from flask import Flask, request, json, jsonify, make_response, render_template, url_for
 from flask_swagger_ui import get_swaggerui_blueprint
@@ -65,10 +64,6 @@ def hello():
         return f.read()
     #return render_template('index.html')
 
-@app.route("/script.js", methods=['GET'])
-def get_script():
-    with open("/app/static/script.js", "r") as f:
-        return f.read()
 
 ################################################################################
 ################################################################################
@@ -283,23 +278,10 @@ def get_account_balance():
 
 ################################################################################
 ################################################################################
-######               Fundraiser related routes:                    #############
+######               DEX related routes:                            ############
 ################################################################################
 ################################################################################
 
-@app.route("/api/campaign/check_server", methods=['GET'])
-def check_server_availability():
-    try:
-        #res = manager_client.get_list()
-        res = get_list()
-        return jsonify(json.loads(res))
-    except Exception as e:
-        print(str(e), flush=True)
-        return make_response(jsonify({
-            "result": "fail",
-            "reason": str(e)
-        }),
-        500)
 
 @app.route("/api/exchange/create", methods=['POST'])
 def create_new_exchange():
