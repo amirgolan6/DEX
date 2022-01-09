@@ -14,10 +14,6 @@ To quickly run all components locally on your machine, run:
 
 - access the client at http://localhost:8000 using your browser.
 
-## Project Architecture
-
-The project contains 3 main components:
-
 ### Crowdfunding Client
 
 The client runs on each users computer and allows you to safely use your private keys without exposing them to anyone. The client interacts with the blockchain to execute contracts.
