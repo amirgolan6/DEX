@@ -23,7 +23,7 @@ The project contains 3 main components:
 The client runs on each users computer and allows you to safely use your private keys without exposing them to anyone. The client interacts with the blockchain to execute contracts.
 
 
-### Crowdfunding Server Database
+### Server Database
 
 In order to have access to your postgreSQL database, set the following environment variables in the _/docker-compose.yaml_ fileA:
 
