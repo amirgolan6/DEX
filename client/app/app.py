@@ -299,14 +299,13 @@ def create_new_exchange():
 def buy_token():
     try:
         account = verify_public_key_syntax(request.args.get('account').strip())
-        contract_address = verify_public_key_syntax(request.args.get('contract_address').strip())
         amount = int(request.args.get('amount').strip())
     except (ValueError, TypeError):
         return jsonify({
             "result": "fail",
             "reson": "Params account not included or invalid"
         })
-    return jsonify(contract_manager.buyToken(contract_address, account, amount, wallet))
+    return jsonify(contract_manager.buyToken(account, amount, wallet))
 
 @app.route("/api/exchange/sell_token", methods=['POST'])
 def sell_token():

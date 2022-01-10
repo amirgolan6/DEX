@@ -173,6 +173,7 @@ class EthWallet:
         return account.signTransaction(transaction)
 
     def create_w3_account(self, account):
+        print(self.accounts)
         if account not in self.accounts:
             return "Unknown Account"
         return self.w3.eth.account.privateKeyToAccount(self.accounts[account])

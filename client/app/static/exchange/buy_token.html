@@ -61,19 +61,15 @@
   </head>
   <body>
     <form>
-      <h1>Buy Token<</h1>
+      <h1>Buy Token</h1>
       <div class="formcontainer">
       <hr/>
-       <div class="container">
-        <label for="sk"><strong>DEX Contract Address</strong></label>
-        <input type="text" placeholder="Enter DEX Contract Address" id="buy_token_dex_addr" required>
-      </div>
       <div class="container">
         <label for="sk"><strong>Account Address (must be unlocked first)</strong></label>
         <input type="text" placeholder="Enter Account Address" id="buy_token_addr" required>
       </div>
         <div class="container">
-        <label for="sk"><strong>Amounts</strong></label>
+        <label for="sk"><strong>Amount</strong></label>
         <input type="number" placeholder="Enter Amount in Ether" id="buy_token_amount" required>
       </div>
       <button type="button" id="buy_token_btn" onclick="buyToken();">Buy</button>

@@ -6,11 +6,13 @@ from web3.middleware import geth_poa_middleware
 from solc import compile_standard
 import json, os
 from eth_account.messages import encode_defunct
+import logging
 w3 = Web3(Web3.HTTPProvider(os.environ.get("ETH_HOST")))
 w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
 MIN_CONTRACT_TIME = 0 # in days
 MAX_CONTRACT_TIME = 36500 # in days
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 
 class ClientContractManager:
@@ -30,6 +32,7 @@ class ClientContractManager:
         compiled_sol = compile_standard(comp)
         self.bytecode = compiled_sol['contracts']['exchange.sol']['DEX']['evm']['bytecode']['object']
         self.abi = json.loads(compiled_sol['contracts']['exchange.sol']['DEX']['metadata'])['output']['abi']
+        self.contract_address = '0x4C3b072c2d2BE7693483506991B7E1e974C95f94'
 
 
     def createNewExchangeContract(self, account_addr, wallet):
@@ -57,14 +60,14 @@ class ClientContractManager:
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
         contract_address = tx_receipt["contractAddress"]
-
+        self.contract_address = contract_address
         return {
             "result": "success",
             "dex_contract_address": contract_address
         }
 
 
-    def buyToken(self, contract_address, account, amount, wallet):
+    def buyToken(self, account, amount, wallet):
         if not wallet.is_unlocked(account):
             return {
                 "result": "fail",
@@ -76,17 +79,18 @@ class ClientContractManager:
                 "result": "fail",
                 "reason": "Account is unknown or locked. Try unlocking first"
             }
+
         DEX = w3.eth.contract(
-            address=contract_address,
+            address=self.contract_address,
             abi=self.abi
         )
 
         w3.eth.default_account = w3_account.address
         try:
+
             transaction = DEX.functions.buyTokens(amount).buildTransaction({'nonce': w3.eth.get_transaction_count(account), 'value': amount})
-            #transaction = DEX.functions.buyTokens(amount).call()
         except Exception as e:
-              
+            logging.error(f'error: {e}')  
             return {
                 "result": "fail",
                 "reason": str(e)
@@ -96,16 +100,16 @@ class ClientContractManager:
         try:
             tx_hash = w3.eth.sendRawTransaction(signed_txn.rawTransaction)
         except Exception as e:
+            logging.error(f'error: {e}')
             return {
                 "result": "fail",
                 "reason": str(e)
             }
 
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-
         return {
             "result": "success",
-            "reason": f"Successfully bought {transaction}"
+            "reason": f"Successfully bought {amount} Ether in token from contract {self.contract_address}"
         }
 
 

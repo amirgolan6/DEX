@@ -35,7 +35,7 @@ function createExchange() {
       return;
     }
     apiUrl.search = new URLSearchParams(params).toString();
-    document.getElementById('add_exchange_addr_res').innerHTML = "Creating Exchange...";
+    document.getElementById('add_exchange_addr_res').innerHTML = "Creating Exchange (this might take a minute)...";
     fetch(apiUrl, {
         method: 'POST'
     }).then(response => {
@@ -63,25 +63,23 @@ function createExchange() {
 function buyToken(){
     var account = document.getElementById("buy_token_addr").value;
     var amount = document.getElementById("buy_token_amount").value;
-    var contract_address = document.getElementById("buy_token_dex_addr").value;
     if (amount <= 0){
        document.getElementById('buy_token_res').innerHTML = "Amount must be greater than zero";
       return;
     }
-    if (account == "" || contract_address == ""){
+    if (account == "" ){
       document.getElementById('buy_token_res').innerHTML = "Contract and Account addresses must be not empty";
       return;
     }
     params = {
         account: account,
         amount: amount,
-        contract_address: contract_address
     }
 
     var apiUrl = new URL('/api/exchange/buy_token', document.baseURI);
 
     apiUrl.search = new URLSearchParams(params).toString();
-    document.getElementById('buy_token_res').innerHTML = "Executing Transaction...";
+    document.getElementById('buy_token_res').innerHTML = "Executing Transaction (might take a minute)...";
     fetch(apiUrl, {
         method: 'POST'
     }).then(response => {
@@ -95,7 +93,7 @@ function buyToken(){
                 document.getElementById('buy_token_res').innerHTML = "Unknown error: " + data["reason"];
             }
         } else {
-            document.getElementById('buy_token_res').innerHTML = 'Buying Token Succeeded: ' + data;
+            document.getElementById('buy_token_res').innerHTML = data["reason"];
             console.log(data);
         }
     }).catch(err => {
