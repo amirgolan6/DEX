@@ -346,6 +346,19 @@ def buy_token():
         })
     return jsonify(contract_manager.buyToken(account, amount, wallet))
 
+@app.route("/api/exchange/details", methods=['GET'])
+def get_contract_details():
+    try:
+        account = verify_public_key_syntax(request.args.get('account').strip())
+    except (ValueError, TypeError):
+        return jsonify({
+            "result": "fail",
+            "reson": "Params account not included or invalid"
+        })
+    return jsonify(contract_manager.getContractDetails(account, wallet))
+
+
+
 @app.route("/api/exchange/sell_token", methods=['POST'])
 def sell_token():
     try:

@@ -49,7 +49,8 @@ contract ERC20Basic is IERC20 {
 
     function transfer(address receiver, uint256 numTokens) public override returns (bool) {
         require(numTokens <= balances[msg.sender]);
-        balances[msg.sender] = balances[msg.sender].sub(numTokens);
+        //balances[msg.sender] = balances[msg.sender].sub(numTokens);
+        balances[msg.sender] = balances[msg.sender] - numTokens;
         balances[receiver] = balances[receiver].add(numTokens);
         emit Transfer(msg.sender, receiver, numTokens);
         return true;
@@ -134,6 +135,10 @@ contract DEX {
     //     return (pools[_token].eth_pool, pools[_token].token_pool);
     // }
 
+
+    function getContractBalance() public view returns (uint256, uint256) { //view amount of ETH and Tok the contract contains
+        return (address(this).balance, token.balanceOf(address(this)));
+    }
 
 
     function buyTokens(uint eth_amount) public payable returns (uint256 tokenAmount) {

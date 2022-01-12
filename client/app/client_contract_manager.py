@@ -100,6 +100,42 @@ class ClientContractManager:
         }
 
 
+    def getContractDetails(self, account_addr, wallet):
+        if not wallet.is_unlocked(account_addr):
+            return {
+                "result": "fail",
+                "reason": "Creating account is not known or it's locked - Try unlocking with password first"
+            }
+        account = wallet.create_w3_account(account_addr)
+        
+        w3.eth.default_account = account.address
+        if self.contract_address == None:
+            return {
+                "result": "fail",
+                "reason": f"DEX doesn't exists. Please create it first"
+        }
+
+        DEX = w3.eth.contract(
+            address=self.contract_address,
+            abi=self.abi
+        )
+
+        try:
+            eth_balance, tok_balance = DEX.functions.getContractBalance().call()
+        except Exception as e:
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+
+        return {
+            "result": "success",
+            "dex_contract_address": self.contract_address,
+            "token_contract_address": self.token_contract_address,
+            "eth_balance": eth_balance,
+            "tok_balance": tok_balance
+        }
+
 
 
     def getTokBalance(self, account_addr, wallet):
@@ -150,7 +186,7 @@ class ClientContractManager:
 
             transaction = DEX.functions.buyTokens(amount).buildTransaction({
                                 "gasPrice": w3.eth.gas_price, 
-                                "from": account, 
+                                "from": account,
                                 'nonce': w3.eth.get_transaction_count(account),
                                 'value': amount
                                 })
@@ -172,6 +208,7 @@ class ClientContractManager:
             }
 
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+        logging.info(f'tx_receipt: {tx_receipt}')
         return {
             "result": "success",
             "reason": f"Successfully bought {amount} Ether in token from contract {self.contract_address}"

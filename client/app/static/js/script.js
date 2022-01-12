@@ -62,6 +62,43 @@ function createExchange() {
     });
 }
 
+
+function getContractDetails(){
+    var account = document.getElementById("contract_details_account_addr").value;
+    var apiUrl = new URL('/api/exchange/details', document.baseURI);
+    params = {
+        account: account
+    }
+    if (account == ""){
+      document.getElementById('add_exchange_addr_res').innerHTML = "Account must be not empty";
+      return;
+    }
+    apiUrl.search = new URLSearchParams(params).toString();
+    //apiUrl.search = new URLSearchParams(params).toString();
+    document.getElementById('get_contract_details_res').innerHTML = "Getting details...";
+    fetch(apiUrl, {
+        method: 'GET'
+    }).then(response => {
+        return response.json();
+    }).then(data => {
+        if (data["result"] == "fail"){
+            console.log(data);
+            document.getElementById('get_contract_details_res').innerHTML = "Unknown error: " + data["reason"];
+        }
+        else {
+            document.getElementById('get_contract_details_btn').remove()
+            str = '<b>DEX Address: ' + data['dex_contract_address'] + '</b><br>' + '<b>\n Token Address: ' + data['token_contract_address'] + 
+            '</b><br>' + '<b>\n ETH Balance: ' + data['eth_balance'] + '</b><br>' + '<b>\n Token Balance: ' + data['tok_balance'] + '</b><br>';
+            document.getElementById('get_contract_details_res').innerHTML = str;
+            console.log(data);
+        }
+    }).catch(err => {
+        console.log(err);
+    
+    });
+}
+
+
 function buyToken(){
     var account = document.getElementById("buy_token_addr").value;
     var amount = document.getElementById("buy_token_amount").value;
