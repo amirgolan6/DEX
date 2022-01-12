@@ -95,6 +95,10 @@ def get_accounts():
         print("Getting all accounts", flush=True)
         accounts = wallet.get_accounts()
         print(accounts, flush=True)
+        for account in list(accounts.keys()):
+            tok_balance = contract_manager.getTokBalance(account, wallet)
+            accounts[account]['tok_balance'] = tok_balance
+
         return jsonify(accounts)
     except Exception as e:
         print(str(e), flush=True)
@@ -243,6 +247,41 @@ def delete_account():
         }),
         500)
 
+
+
+
+@app.route("/api/account/get_tok_balance", methods=['GET'])
+def get_account_tok_balance():
+    try:
+        try:
+            account = request.args.get('account').strip()
+            account = verify_public_key_syntax(account)
+        except (ValueError, TypeError):
+            return jsonify({
+                "result": "fail",
+                "reson": "Params account is invalid"
+            })
+        if account is None:
+            print("Invalid public key", flush=True)
+            return make_response(jsonify({
+                "result": "fail",
+                "reason": "Invalid public key"
+            }), 404)
+        print("Getting Tok balance", flush=True)
+        tok_balance = contract_manager.getTokBalance(account, wallet)
+        return jsonify({
+            "result": "success",
+            "tok_balance": tok_balance
+        })
+        
+    except Exception as e:
+        print(str(e), flush=True)
+        return make_response(jsonify({
+            "result": "fail",
+            "reason": str(e)
+        }),
+        500)
+
 @app.route("/api/account/get_balance", methods=['GET'])
 def get_account_balance():
     try:
@@ -311,12 +350,13 @@ def buy_token():
 def sell_token():
     try:
         account = verify_public_key_syntax(request.args.get('account').strip())
+        amount = int(request.args.get('amount').strip())
     except (ValueError, TypeError):
         return jsonify({
             "result": "fail",
             "reson": "Params account not included or invalid"
         })
-    return jsonify(contract_manager.createNewExchangeContract(account, wallet))
+    return jsonify(contract_manager.sellToken(account, amount, wallet))
 
 
 

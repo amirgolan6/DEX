@@ -65,10 +65,10 @@
       <div class="formcontainer">
       <hr/>
       <div class="container">
-        <label for="sk"><strong>Public Key</strong></label>
+        <label for="sk"><strong>Address (account must be unlocked first)</strong></label>
         <input type="text" placeholder="Enter Account Public Key" id="account_public_key" required>
       </div>
-      <button type="button" onclick="accountBalance();">Get Balance</button>
+      <button type="button" id="account_balance_btn" onclick="accountBalance();">Get Balance</button>
       <label type=type2 id="account_balance"></label>
       <div class="container" style="background-color: #eee">
       </div>

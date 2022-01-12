@@ -93,6 +93,7 @@ function buyToken(){
                 document.getElementById('buy_token_res').innerHTML = "Unknown error: " + data["reason"];
             }
         } else {
+            document.getElementById('buy_token_btn').remove()
             document.getElementById('buy_token_res').innerHTML = data["reason"];
             console.log(data);
         }
@@ -104,6 +105,58 @@ function buyToken(){
         }
     });
 }
+
+
+
+
+function sellToken(){
+    var account = document.getElementById("sell_token_addr").value;
+    var amount = document.getElementById("sell_token_amount").value;
+    if (amount <= 0){
+       document.getElementById('sell_token_res').innerHTML = "Amount must be greater than zero";
+      return;
+    }
+    if (account == "" ){
+      document.getElementById('sell_token_res').innerHTML = "Contract and Account addresses must be not empty";
+      return;
+    }
+    params = {
+        account: account,
+        amount: amount,
+    }
+
+    var apiUrl = new URL('/api/exchange/sell_token', document.baseURI);
+
+    apiUrl.search = new URLSearchParams(params).toString();
+    document.getElementById('sell_token_res').innerHTML = "Executing Transaction (might take a minute)...";
+    fetch(apiUrl, {
+        method: 'POST'
+    }).then(response => {
+        return response.json();
+    }).then(data => {
+        if (data["result"] == "fail"){
+            if (data["reason"] == "Invalid public key"){
+                document.getElementById('sell_token_res').innerHTML = "Account invalid or doesn't exist";
+            } else {
+                console.log(data);
+                document.getElementById('sell_token_res').innerHTML = "Unknown error: " + data["reason"];
+            }
+        } else {
+            document.getElementById('sell_token_btn').remove()
+            document.getElementById('sell_token_res').innerHTML = data["reason"];
+            console.log(data);
+        }
+    }).catch(err => {
+        console.log("err");
+        console.log(err);
+        if (err["reason"] == "Invalid public key"){
+            document.getElementById('account_balance').innerHTML = "Account invalid or doesn't exist";
+        }
+    });
+}
+
+
+
 
 function addExistingAccount() {
     var password = document.getElementById("add_account_password").value;
@@ -178,6 +231,44 @@ function deleteAccount() {
     });
 }
 
+function accountTokBalance(){
+    var account = document.getElementById("account_tok_public_key").value;
+    var apiUrl = new URL('/api/account/get_tok_balance', document.baseURI),
+    params = {
+        account: account
+    }
+    if (account == ""){
+      document.getElementById('account_tok_balance').innerHTML = "Account must be not empty";
+      return;
+    }
+    apiUrl.search = new URLSearchParams(params).toString();
+    document.getElementById('account_tok_balance').innerHTML = "Getting account balance...";
+    fetch(apiUrl, {
+        method: 'GET'
+    }).then(response => {
+        return response.json();
+    }).then(data => {
+        if (data["result"] == "fail"){
+            if (data["reason"] == "Invalid public key"){
+                document.getElementById('account_tok_balance').innerHTML = "Account invalid or doesn't exist";
+            } else {
+                document.getElementById('account_tok_balance').innerHTML = "Unknown error: " + data["reason"];
+            }
+        } else { 
+            document.getElementById('tok_balance_btn').remove()
+            res = "Account balance is " + data['tok_balance'] + " Tok."
+            document.getElementById('account_tok_balance').innerHTML = res;
+        }
+    }).catch(err => {
+        console.log("err");
+        console.log(err);
+        if (err["reason"] == "Invalid public key"){
+            document.getElementById('account_tok_balance').innerHTML = "Account invalid or doesn't exist";
+        }
+    });
+
+
+}
 
 function accountBalance() {
     var account = document.getElementById("account_public_key").value;
@@ -202,10 +293,9 @@ function accountBalance() {
             } else {
                 document.getElementById('account_balance').innerHTML = "Unknown error: " + data["reason"];
             }
-        } else {
-            var num = BigInt(data['balance'])
-            num = wei2eth(num);
-            res = "Account balance is " + data['balance'] + " wei =~\n" + num + " eth"
+        } else { 
+            document.getElementById('account_balance_btn').remove()
+            res = "Account balance is " + data['balance'] + " eth."
             document.getElementById('account_balance').innerHTML = res;
         }
     }).catch(err => {
@@ -218,7 +308,7 @@ function accountBalance() {
 }
 
 function wei2eth(num) {
-    return Number(num * 100000n / 1000000000000000000n) / 100000
+    return Number(num  / (10**18))
 }
 
 function lockAccount() {
@@ -341,7 +431,7 @@ function listAccounts(){
         var table = document.createElement('table');
         let thead = table.createTHead();
         let row = thead.insertRow();
-        for (let key of ['Account','State', 'Wei Balance', 'Eth Balance']) {
+        for (let key of ['Account','State', 'Eth Balance', 'Tok Balance']) {
             let th = document.createElement("th");
             let text = document.createTextNode(key);
             th.appendChild(text);
@@ -360,11 +450,11 @@ function listAccounts(){
             cell.appendChild(text);
 
             cell = row.insertCell();
-            text = document.createTextNode(element['balance']);
+            text = document.createTextNode(element['eth_balance']);
             cell.appendChild(text);
 
             cell = row.insertCell();
-            text = document.createTextNode(wei2eth(BigInt(element['balance'])));
+            text = document.createTextNode(element['tok_balance'] > 0 ? element['tok_balance'] : 0);
             cell.appendChild(text);
 
         }

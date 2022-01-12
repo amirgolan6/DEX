@@ -42,7 +42,7 @@ class EthWallet:
                 res[i]['state'] = "Unlocked"
             else:
                 res[i]['state'] = "Locked"
-            res[i]['balance'] = self.get_balance(i)
+            res[i]['eth_balance'] = self.get_balance(i)
         return res
 
 
@@ -179,7 +179,9 @@ class EthWallet:
         return self.w3.eth.account.privateKeyToAccount(self.accounts[account])
 
     def get_balance(self, account):
-        return self.w3.eth.get_balance(account)
+        wei_balance = self.w3.eth.get_balance(account)
+        balance = self.w3.fromWei(wei_balance, 'ether')
+        return balance
 
 if __name__ == "__main__":
     wal = EthWallet("/app/wallet/testDB")
