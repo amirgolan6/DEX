@@ -66,8 +66,8 @@ contract ERC20Basic is IERC20 {
     }
 
     function transferFrom(address owner, address buyer, uint256 numTokens) public override returns (bool) {
-        require(numTokens <= balances[owner]);
-        require(numTokens <= allowed[owner][msg.sender]);
+        require(numTokens < balances[owner], "not enough tokens in balance");
+        require(numTokens < allowed[owner][msg.sender], "not allowed");
 
         balances[owner] = balances[owner].sub(numTokens);
         allowed[owner][msg.sender] = allowed[owner][msg.sender].sub(numTokens);
@@ -107,19 +107,27 @@ contract DEX {
 
     uint256 private balance_tok;
     uint256 private balance_eth;
+    uint256 private balance_lqt;
+
     // token price for ETH
     uint256 public tokensPerEth = 100;
 
-    uint256 public total_shares;               
+    uint256 public eth_tok_invariant;
+    uint256 public eth_lqt_invariant;
+
     mapping(address => uint256) shares;   
     // Event that log buy operation
     event BuyTokens(address buyer, uint256 amountOfETH, uint256 amountOfTokens);
     event SellTokens(address seller, uint256 amountOfTokens, uint256 amountOfETH);
+    
 
     constructor() public {
         token = new ERC20Basic();
         balance_tok = 0;
         balance_eth = 0;
+        balance_lqt = 0;
+        eth_tok_invariant = 0;
+        eth_lqt_invariant = 0;
     }
 
     // function getPool(IERC20 _token) public view returns (uint256, uint256) {
@@ -148,30 +156,34 @@ contract DEX {
     }
 
 
-    function sellTokens(uint256 tokenAmountToSell) public returns (bool) {
+    function sellTokens(uint256 tokenAmountToSell) public {//returns (bool) {
         // Check that the requested amount of tokens to sell is more than 0
         require(tokenAmountToSell > 0, "Specify an amount of token greater than zero");
 
         // Check that the user's token balance is enough to do the swap
         uint256 userBalance = token.balanceOf(msg.sender);
-        require(userBalance >= tokenAmountToSell, "Your balance is lower than the amount of tokens you want to sell");
+        require(userBalance > tokenAmountToSell, "Your balance is lower than the amount of tokens you want to sell");
 
         // Check that the Vendor's balance is enough to do the swap
         uint256 amountOfETHToTransfer = tokenAmountToSell / tokensPerEth;
         uint256 ownerETHBalance = address(this).balance;
-        require(ownerETHBalance >= amountOfETHToTransfer, "Vendor has not enough funds to accept the sell request");
+        require(ownerETHBalance > amountOfETHToTransfer, "Vendor has not enough funds to accept the sell request");
 
         (bool sent) = token.transferFrom(msg.sender, address(this), tokenAmountToSell);
         require(sent, "Failed to transfer tokens from user to vendor");
 
-
-        (sent,) = msg.sender.call{value: amountOfETHToTransfer}("");
-        require(sent, "Failed to send ETH to the user");
+        payable(msg.sender).transfer(amountOfETHToTransfer);
+        //(sent,) = msg.sender.call{value: amountOfETHToTransfer}("");
+        //require(sent, "Failed to send ETH to the user");
     }
 
     function approve(address delegate, uint256 numTokens) public returns (bool) {
         (bool approved) = token.approve(delegate, numTokens);
         return approved;
+    }
+
+    function getTokenContractAddress() public view returns (address token_address){
+        return address(token);
     }
 
     function getTokBalance(address tokenOwner) public view returns (uint256){
@@ -214,7 +226,7 @@ contract DEX {
         require(tokens_in > 0, "You need to sell at least some tokens");
         uint256 allowance = token.allowance(msg.sender, address(this));
         require(allowance >= tokens_in, "Check the token allowance");
-        uint256 fee = tokens_in / tokensPerEth;
+        uint256 fee = tokens_in / 500;
         uint256 invariant = balance_tok * balance_eth;
         uint256 new_token_pool = balance_tok + tokens_in;
         uint256 tokens_out = balance_tok - new_token_pool;
@@ -231,18 +243,20 @@ contract DEX {
     //The first liquidity provider to invest in an exchange must initialise it. 
     //This is done by depositing some amount of both ETH and the exchange token into the contract, which sets the initial exchange rate. 
     //The provider is rewarded with initial “shares” of the market (based on the value deposited). 
-    //These shares are ERC20 tokens, which represent proportional ownership of a single Blockdrop exchange. 
+    //These shares are Liquidity Tokens, which represent proportional ownership of a single Blockdrop exchange. 
     //Shares are highly divisible and can be burned at any time to return a proportional share of the markets liquidity to the owner.            
     function initialize(uint256 tokens_invested) public payable {
-        require(total_shares == 0, "DEX: init - already has liquidity");
+        require(balance_lqt == 0, "DEX: init - already has liquidity");
         require(tokens_invested > 0, "You must send some tokens to initialize");
         uint256 eth_invested = msg.value;
         require(eth_invested > 0, "You must send some ether to initialize");
         balance_eth = eth_invested;
         balance_tok = tokens_invested;
-        uint256 initial_shares= eth_invested / 10000;
-        total_shares = initial_shares;
-        shares[msg.sender] = initial_shares;
+        eth_tok_invariant = balance_eth * balance_tok;
+        uint256 initial_liquidity_tokens = (tokens_invested / eth_invested) / 2;
+        balance_lqt = initial_liquidity_tokens;
+        eth_lqt_invariant = balance_eth * balance_lqt;
+        shares[msg.sender] = initial_liquidity_tokens;
         token.transferFrom(msg.sender, address(this), tokens_invested);
     }
 

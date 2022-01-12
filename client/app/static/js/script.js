@@ -45,10 +45,12 @@ function createExchange() {
             if (data["reason"] == "Invalid public key"){
                 document.getElementById('add_exchange_addr_res').innerHTML = "Account invalid or doesn't exist";
             } else {
-                document.getElementById('add_exchange_addr_res').innerHTML = "Unknown error: " + data["reason"];
+                document.getElementById('add_exchange_addr_res').innerHTML = "Error: " + data["reason"];
             }
         } else {
-            document.getElementById('add_exchange_addr_res').innerHTML = 'Created DEX contract: ' + data['dex_contract_address'];
+            document.getElementById('add_exchange_btn').remove();
+            document.getElementById('add_exchange_addr_res').innerHTML = 'Created DEX with contract address: ' + data['dex_contract_address'] + 
+            ', token contract address: ' + data['token_contract_address'];
             console.log(data);
         }
     }).catch(err => {
@@ -255,8 +257,9 @@ function accountTokBalance(){
                 document.getElementById('account_tok_balance').innerHTML = "Unknown error: " + data["reason"];
             }
         } else { 
-            document.getElementById('tok_balance_btn').remove()
-            res = "Account balance is " + data['tok_balance'] + " Tok."
+            document.getElementById('tok_balance_btn').remove();
+            tok_balance = data['tok_balance'] > 0 ? data['tok_balance'] : 0;
+            res = "Account balance is " + tok_balance + " Tok.";
             document.getElementById('account_tok_balance').innerHTML = res;
         }
     }).catch(err => {

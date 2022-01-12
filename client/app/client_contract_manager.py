@@ -12,7 +12,7 @@ w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
 MIN_CONTRACT_TIME = 0 # in days
 MAX_CONTRACT_TIME = 36500 # in days
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 
 class ClientContractManager:
@@ -29,15 +29,24 @@ class ClientContractManager:
                 "outputSelection": { "*": { "*": [ "*" ], "": [ "*" ] } }
             }
         }
+
         compiled_sol = compile_standard(comp)
+
         self.bytecode = compiled_sol['contracts']['exchange.sol']['DEX']['evm']['bytecode']['object']
         self.abi = json.loads(compiled_sol['contracts']['exchange.sol']['DEX']['metadata'])['output']['abi']
-        self.contract_address = '0x1d435fc323423dA475388d803657d435441C1150'
+        self.contract_address = None
 
-        self.token_bytecode = compiled_sol['contracts']['exchange.sol']['DEX']['evm']['bytecode']['object']
-
+        self.token_bytecode = compiled_sol['contracts']['exchange.sol']['ERC20Basic']['evm']['bytecode']['object']
+        self.token_abi = json.loads(compiled_sol['contracts']['exchange.sol']['ERC20Basic']['metadata'])['output']['abi']
+        self.token_contract_address = None
 
     def createNewExchangeContract(self, account_addr, wallet):
+        if self.contract_address != None:
+            return {
+                "result": "fail",
+                "reason": f"DEX already exists. Contract address: {self.contract_address}, Token contract address: {self.token_contract_address}"
+            }
+
         if not wallet.is_unlocked(account_addr):
             return {
                 "result": "fail",
@@ -47,9 +56,9 @@ class ClientContractManager:
         
         w3.eth.default_account = account.address
         
-        Exchange = w3.eth.contract(abi=self.abi, bytecode=self.bytecode)
+        DEX = w3.eth.contract(abi=self.abi, bytecode=self.bytecode)
         #transaction = Exchange.constructor().buildTransaction({'nonce': w3.eth.get_transaction_count(account_addr)})
-        transaction = Exchange.constructor().buildTransaction({
+        transaction = DEX.constructor().buildTransaction({
                             "gasPrice": w3.eth.gas_price, 
                             "from": account_addr, 
                             'nonce': w3.eth.get_transaction_count(account_addr),
@@ -68,10 +77,30 @@ class ClientContractManager:
 
         contract_address = tx_receipt["contractAddress"]
         self.contract_address = contract_address
+        logging.info(f'contract address: {self.contract_address}')
+
+        DEX = w3.eth.contract(
+            address=self.contract_address ,
+            abi=self.abi
+        )
+        try:
+            token_contract_address = DEX.functions.getTokenContractAddress().call()
+        except Exception as e:
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+
+        self.token_contract_address = token_contract_address
+        logging.info(f'token contract address: {self.token_contract_address}')
         return {
             "result": "success",
-            "dex_contract_address": contract_address
+            "dex_contract_address": self.contract_address,
+            "token_contract_address": self.token_contract_address
         }
+
+
+
 
     def getTokBalance(self, account_addr, wallet):
         if not wallet.is_unlocked(account_addr):
