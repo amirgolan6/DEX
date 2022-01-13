@@ -338,8 +338,42 @@ class ClientContractManager:
             "reason": f"Successfully bought {amount} Ether in token from contract {self.contract_address}"
         }
 
+    def getLPbalance(self, account_addr, wallet):
+        if not wallet.is_unlocked(account_addr):
+            return {
+                "result": "fail",
+                "reason": "Creating account is not known or it's locked - Try unlocking with password first"
+            }
+        account = wallet.create_w3_account(account_addr)
+        
+        w3.eth.default_account = account.address
+        if self.contract_address == None:
+            return {
+                "result": "fail",
+                "reason": f"DEX doesn't exists. Please create it first"
+        }
 
+        DEX = w3.eth.contract(
+            address=self.contract_address,
+            abi=self.abi
+        )
 
+        try:
+            wei_balance, token_balance, lp_wei_balance = DEX.functions.lpBalance().call()
+            eth_balance = w3.fromWei(wei_balance, 'ether')
+            lp_balance = w3.fromWei(lp_wei_balance, 'ether')
+        except Exception as e:
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+
+        return {
+            "result": "success",
+            "eth_balance": eth_balance,
+            "token_balance": token_balance,
+            "lp_balance": lp_balance,
+        }
 
 
     def etherToToken(self, account, eth_amount, wallet):

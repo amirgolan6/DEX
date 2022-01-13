@@ -117,7 +117,7 @@ contract DEX {
     uint256 public eth_lqt_invariant;
 
     mapping(address => uint256) shares; 
-    bool private initalized_lp;  
+    bool private initialized_lp;  
     // Event that log buy operation
     event BuyTokens(address buyer, uint256 amountOfETH, uint256 amountOfTokens);
     event SellTokens(address seller, uint256 amountOfTokens, uint256 amountOfETH);
@@ -130,7 +130,7 @@ contract DEX {
         balance_lqt = 0;
         eth_tok_invariant = 0;
         eth_lqt_invariant = 0;
-        initalized_lp = false;
+        initialized_lp = false;
     }
 
     // function getPool(IERC20 _token) public view returns (uint256, uint256) {
@@ -216,16 +216,20 @@ contract DEX {
     // }
 
 
+    function lpBalance() public view returns (uint256, uint256, uint256) {
+        return (balance_eth, balance_tok, balance_lqt);
+    }
+
 
     function ethToTokenSwap() public payable {
-        require(initalized_lp == true, "DEX: Liquidity pool not initialized");
+        require(initialized_lp == true, "DEX: Liquidity pool not initialized");
         require(msg.value > 0, "You need to sell at least some ethers");
-
         uint256 fee = msg.value / 500;
         uint256 invariant = balance_tok * balance_eth;
 
         uint256 new_eth_pool = balance_eth + msg.value;
         uint256 new_token_pool = invariant / (new_eth_pool - fee);
+        require(new_token_pool >= 0, "Pool doesn't have enough Tokens liquidity");
 
         uint256 tokens_out = balance_tok - new_token_pool;
         balance_eth = new_eth_pool;
@@ -235,17 +239,18 @@ contract DEX {
 
     
     function tokenToEthSwap(uint256 tokens_in) public payable {
-        require(initalized_lp == true, "DEX: Liquidity pool not initialized");
+        require(initialized_lp == true, "DEX: Liquidity pool not initialized");
         require(tokens_in > 0, "You need to sell at least some tokens");
         uint256 allowance = token.allowance(msg.sender, address(this));
         require(allowance >= tokens_in, "Check the token allowance");
+        
 
         uint256 fee = tokens_in / 500;
         uint256 invariant = balance_tok * balance_eth;
         uint256 new_token_pool = balance_tok + tokens_in;
-        //uint256 tokens_out = balance_tok - new_token_pool;
         uint256 new_eth_pool = invariant / (new_token_pool - fee);
         uint256 eth_out = balance_eth - new_eth_pool;
+        require(new_eth_pool >= 0, "Pool doesn't have enough ETH liquidity");
 
         balance_eth = new_eth_pool;
         balance_tok = new_token_pool;
@@ -260,20 +265,35 @@ contract DEX {
     //These shares are Liquidity Tokens, which represent proportional ownership of a single Blockdrop exchange. 
     //Shares are highly divisible and can be burned at any time to return a proportional share of the markets liquidity to the owner.            
     function initialize(uint256 tokens_invested) public payable {
-        require(initalized_lp == false, "DEX: Liquidity pool already initialized");
+        require(initialized_lp == false, "DEX: Liquidity pool already initialized");
         require(tokens_invested > 0, "You must send some tokens to initialize");
         uint256 eth_invested = msg.value;
         require(eth_invested > 0, "You must send some ether to initialize");
-        initalized_lp = true;
+        initialized_lp = true;
         balance_eth = eth_invested;
         balance_tok = tokens_invested;
         eth_tok_invariant = balance_eth * balance_tok;
-        uint256 initial_liquidity_tokens = (tokens_invested / eth_invested) / 2;
-        balance_lqt = initial_liquidity_tokens;
+
+        //initial liquidity pool token in 1:1 with ETH
+        balance_lqt = eth_invested;
+        shares[msg.sender] = balance_lqt;
         eth_lqt_invariant = balance_eth * balance_lqt;
-        shares[msg.sender] = initial_liquidity_tokens;
+
         token.transferFrom(msg.sender, address(this), tokens_invested);
     }
+
+
+    // @public
+    // @payable
+    // def invest(min_shares: uint256, timeout: uint256):
+    // eth_invested: uint256 = msg.value
+    // shares_minted: uint256 = (eth_invested * self.total_shares) / self.eth_pool
+    // tokens_invested: uint256 = (shares_minted * self.token_pool) / self.total_shares)
+    // self.shares[msg.sender] = self.shares[msg.sender] + shares_minted
+    // self.total_shares = self.total_shares + shares_minted
+    // self.eth_pool = self.eth_pool + eth_invested
+    // self.token_pool = self.token_pool + tokens_invested
+    // self.token_address.transferFrom(msg.sender, self, tokens_invested)
 
     //     @public
     // def tokenToTokenSwap(token_addr: address, tokens_sold: uint256):

@@ -73,6 +73,41 @@ function initializeLP(){
     });
 }
 
+function getLPbalance(){
+    var account = document.getElementById("lp_balance_addr").value;
+    var apiUrl = new URL('/api/exchange/lp_balance', document.baseURI);
+    params = {
+        account: account
+    }
+    if (account == ""){
+      document.getElementById('lp_balance_res').innerHTML = "Account must be not empty";
+      return;
+    }
+    apiUrl.search = new URLSearchParams(params).toString();
+    document.getElementById('lp_balance_res').innerHTML = "Getting balances...";
+    fetch(apiUrl, {
+        method: 'GET'
+    }).then(response => {
+        return response.json();
+    }).then(data => {
+        if (data["result"] == "fail"){
+            console.log(data);
+            document.getElementById('lp_balance_res').innerHTML = "Error: " + data["reason"];
+        }
+        else {
+            document.getElementById('lp_balance_btn').remove();
+            str = '<b>EtH Balance: ' + data['eth_balance'] + '</b><br>' + '<b>\n Token Balance: ' + data['token_balance'] + 
+            '</b><br>' + '<b>\n Liquidity Pool Tokens Balance: ' + data['lp_balance'] + '</b><br>';
+            document.getElementById('lp_balance_res').innerHTML = str;
+            console.log(data);
+        }
+    }).catch(err => {
+        console.log(err);
+    
+    });
+
+}
+
 
 function tokenToEther(){
     var account = document.getElementById("token_to_ether_addr").value;
