@@ -180,8 +180,8 @@ class EthWallet:
 
     def get_balance(self, account):
         wei_balance = self.w3.eth.get_balance(account)
-        balance = self.w3.fromWei(wei_balance, 'ether')
-        return balance
+        eth_balance = self.w3.fromWei(wei_balance, 'ether')
+        return eth_balance
 
 if __name__ == "__main__":
     wal = EthWallet("/app/wallet/testDB")

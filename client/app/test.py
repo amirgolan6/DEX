@@ -384,8 +384,8 @@ def main():
     allowance = tokenAllowence('0x820Fa62Eb7c3464F41426f80784EE6A8cD9Cac10', token_contract_address, dex_contract_address, wallet)['allowance']
     print(f'allowance: {allowance}')
 
-    sell_txn = sellTokens('0x820Fa62Eb7c3464F41426f80784EE6A8cD9Cac10', 200, wallet, dex_contract_address)['reason']
-    print(f'sell txn: {sell_txn}')
+    # sell_txn = sellTokens('0x820Fa62Eb7c3464F41426f80784EE6A8cD9Cac10', 200, wallet, dex_contract_address)['reason']
+    # print(f'sell txn: {sell_txn}')
 
 
     init = initialize('0x820Fa62Eb7c3464F41426f80784EE6A8cD9Cac10', 1, 1, wallet, dex_contract_address)

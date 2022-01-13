@@ -67,8 +67,8 @@ contract ERC20Basic is IERC20 {
     }
 
     function transferFrom(address owner, address buyer, uint256 numTokens) public override returns (bool) {
-        require(numTokens < balances[owner], "not enough tokens in balance");
-        require(numTokens < allowed[owner][msg.sender], "not allowed");
+        require(numTokens <= balances[owner], "not enough tokens in balance");
+        require(numTokens <= allowed[owner][msg.sender], "not allowed");
 
         balances[owner] = balances[owner].sub(numTokens);
         allowed[owner][msg.sender] = allowed[owner][msg.sender].sub(numTokens);
@@ -116,7 +116,8 @@ contract DEX {
     uint256 public eth_tok_invariant;
     uint256 public eth_lqt_invariant;
 
-    mapping(address => uint256) shares;   
+    mapping(address => uint256) shares; 
+    bool private initalized_lp;  
     // Event that log buy operation
     event BuyTokens(address buyer, uint256 amountOfETH, uint256 amountOfTokens);
     event SellTokens(address seller, uint256 amountOfTokens, uint256 amountOfETH);
@@ -129,6 +130,7 @@ contract DEX {
         balance_lqt = 0;
         eth_tok_invariant = 0;
         eth_lqt_invariant = 0;
+        initalized_lp = false;
     }
 
     // function getPool(IERC20 _token) public view returns (uint256, uint256) {
@@ -251,10 +253,11 @@ contract DEX {
     //These shares are Liquidity Tokens, which represent proportional ownership of a single Blockdrop exchange. 
     //Shares are highly divisible and can be burned at any time to return a proportional share of the markets liquidity to the owner.            
     function initialize(uint256 tokens_invested) public payable {
-        require(balance_lqt == 0, "DEX: init - already has liquidity");
+        require(initalized_lp == false, "DEX: Liquidity pool already initialized");
         require(tokens_invested > 0, "You must send some tokens to initialize");
         uint256 eth_invested = msg.value;
         require(eth_invested > 0, "You must send some ether to initialize");
+        initalized_lp = true;
         balance_eth = eth_invested;
         balance_tok = tokens_invested;
         eth_tok_invariant = balance_eth * balance_tok;

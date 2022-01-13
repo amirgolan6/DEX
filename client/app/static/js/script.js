@@ -24,6 +24,56 @@ function createAccount() {
     });
 }
 
+function initializeLP(){
+
+    var account = document.getElementById("iniitialize_lp_addr").value;
+    var eth_amount = document.getElementById("iniitialize_lp_eth_amnt").value;
+    var token_amount = document.getElementById("iniitialize_lp_token_amnt").value;
+    if (eth_amount <= 0 || token_amount <=0){
+       document.getElementById('initialize_lp_res').innerHTML = "Both amounts must be greater than zero";
+      return;
+    }
+    if (account == ""){
+      document.getElementById('initialize_lp_res').innerHTML = "Contract and Account addresses must be not empty";
+      return;
+    }
+    params = {
+        account: account,
+        eth_amount: eth_amount,
+        token_amount: token_amount
+    }
+
+    var apiUrl = new URL('/api/exchange/initialize_lp', document.baseURI);
+
+    apiUrl.search = new URLSearchParams(params).toString();
+    document.getElementById('initialize_lp_res').innerHTML = "Executing Transaction (might take a minute)...";
+    fetch(apiUrl, {
+        method: 'POST'
+    }).then(response => {
+        return response.json();
+    }).then(data => {
+        if (data["result"] == "fail"){
+            if (data["reason"] == "Invalid public key"){
+                document.getElementById('initialize_lp_res').innerHTML = "Account invalid or doesn't exist";
+            } else {
+                console.log(data);
+                document.getElementById('initialize_lp_res').innerHTML = "Error: " + data["reason"];
+            }
+        } else {
+            document.getElementById('initialize_lp_btn').remove()
+            document.getElementById('initialize_lp_res').innerHTML = "<strong>Initlized Liquidity Pool Successfully</strong>";
+            console.log(data);
+        }
+    }).catch(err => {
+        console.log("err");
+        console.log(err);
+        if (err["reason"] == "Invalid public key"){
+            document.getElementById('initialize_lp_res').innerHTML = "Account invalid or doesn't exist";
+        }
+    });
+}
+
+
 function createExchange() {
     var account = document.getElementById("add_exchange_addr").value;
     var apiUrl = new URL('/api/exchange/create', document.baseURI),
@@ -83,7 +133,7 @@ function getContractDetails(){
     }).then(data => {
         if (data["result"] == "fail"){
             console.log(data);
-            document.getElementById('get_contract_details_res').innerHTML = "Unknown error: " + data["reason"];
+            document.getElementById('get_contract_details_res').innerHTML = "Error: " + data["reason"];
         }
         else {
             document.getElementById('get_contract_details_btn').remove()
@@ -129,7 +179,7 @@ function buyToken(){
                 document.getElementById('buy_token_res').innerHTML = "Account invalid or doesn't exist";
             } else {
                 console.log(data);
-                document.getElementById('buy_token_res').innerHTML = "Unknown error: " + data["reason"];
+                document.getElementById('buy_token_res').innerHTML = "Error: " + data["reason"];
             }
         } else {
             document.getElementById('buy_token_btn').remove()
@@ -178,7 +228,7 @@ function sellToken(){
                 document.getElementById('sell_token_res').innerHTML = "Account invalid or doesn't exist";
             } else {
                 console.log(data);
-                document.getElementById('sell_token_res').innerHTML = "Unknown error: " + data["reason"];
+                document.getElementById('sell_token_res').innerHTML = "Error: " + data["reason"];
             }
         } else {
             document.getElementById('sell_token_btn').remove()
@@ -220,7 +270,7 @@ function addExistingAccount() {
             if (data["reason"] == "Invalid private key"){
                 document.getElementById('add_existing_account').innerHTML = "Invalid private key";
             } else {
-                document.getElementById('add_existing_account').innerHTML = "Unknown error: " + data["reason"];
+                document.getElementById('add_existing_account').innerHTML = "Error: " + data["reason"];
             }
         } else {
             console.log(data);
@@ -255,7 +305,7 @@ function deleteAccount() {
             if (data["reason"] == "Invalid public key"){
                 document.getElementById('deleted_account').innerHTML = "Account invalid or doesn't exist";
             } else {
-                document.getElementById('deleted_account').innerHTML = "Unknown error: " + data["reason"];
+                document.getElementById('deleted_account').innerHTML = "Error: " + data["reason"];
             }
         } else {
             document.getElementById('delete_acnt_btn').remove();
@@ -291,7 +341,7 @@ function accountTokBalance(){
             if (data["reason"] == "Invalid public key"){
                 document.getElementById('account_tok_balance').innerHTML = "Account invalid or doesn't exist";
             } else {
-                document.getElementById('account_tok_balance').innerHTML = "Unknown error: " + data["reason"];
+                document.getElementById('account_tok_balance').innerHTML = "Error: " + data["reason"];
             }
         } else { 
             document.getElementById('tok_balance_btn').remove();
@@ -331,7 +381,7 @@ function accountBalance() {
             if (data["reason"] == "Invalid public key"){
                 document.getElementById('account_balance').innerHTML = "Account invalid or doesn't exist";
             } else {
-                document.getElementById('account_balance').innerHTML = "Unknown error: " + data["reason"];
+                document.getElementById('account_balance').innerHTML = "Error: " + data["reason"];
             }
         } else { 
             document.getElementById('account_balance_btn').remove()
@@ -372,7 +422,7 @@ function lockAccount() {
             if (data["reason"] == "Invalid public key"){
                 document.getElementById('lock_account').innerHTML = "Account invalid or doesn't exist";
             } else {
-                document.getElementById('lock_account').innerHTML = "Unknown error: " + data["reason"];
+                document.getElementById('lock_account').innerHTML = "Error: " + data["reason"];
             }
         } else {
             document.getElementById('lock_account').innerHTML = "Account locked";
@@ -411,7 +461,7 @@ function unlockAccount() {
             } else if (data["reason"] == "Wrong password") {
                 document.getElementById('unlock_account').innerHTML = "Password is wrong";
             } else {
-                document.getElementById('unlock_account').innerHTML = "Unknown error: " + data["reason"];
+                document.getElementById('unlock_account').innerHTML = "Error: " + data["reason"];
             }
         } else {
             document.getElementById('unlock_account').innerHTML = "Account unlocked";
@@ -446,7 +496,7 @@ function getPrivateKey() {
             if (data["reason"] == "Invalid public key"){
                 document.getElementById('account_sk').innerHTML = "Account invalid or doesn't exist";
             } else {
-                document.getElementById('account_sk').innerHTML = "Unknown error: " + data["reason"];
+                document.getElementById('account_sk').innerHTML = "Error: " + data["reason"];
             }
         } else {
             document.getElementById('account_sk').innerHTML = "Private Key: " + data['result'];

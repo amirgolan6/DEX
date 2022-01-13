@@ -100,6 +100,126 @@ class ClientContractManager:
         }
 
 
+    def initializeLP(self, account, tok_amount, eth_amount, wallet):
+        if not wallet.is_unlocked(account):
+            return {
+                "result": "fail",
+                "reason": "Creating account is not known or it's locked - Try unlocking with password first"
+            }
+        w3_account = wallet.create_w3_account(account);
+        if w3_account == "Unknown Account":
+            return {
+                "result": "fail",
+                "reason": "Account is unknown or locked. Try unlocking first"
+            }
+
+        DEX = w3.eth.contract(
+            address=self.contract_address,
+            abi=self.abi
+        )
+
+        w3.eth.default_account = w3_account.address
+        try:
+
+            transaction = DEX.functions.initialize(tok_amount).buildTransaction({
+                                    "gasPrice": w3.eth.gas_price, 
+                                    "from": account, 
+                                    'nonce': w3.eth.get_transaction_count(account),
+                                    'value': w3.toWei(eth_amount, 'ether')
+                                    })
+        except Exception as e:
+            logging.error(f'error: {e}')  
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+        signed_txn = wallet.signTransaction(account, transaction)
+
+        try:
+            tx_hash = w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+        except Exception as e:
+            logging.error(f'error: {e}')
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+
+        tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+        status_approved = tx_receipt['status']
+        if not status_approved:
+            return {
+                "result": "fail",
+                "reason": "not able to initialize liquidity pool"
+            }
+
+        return {
+            "result": "success",
+            "status": "initalized pool successfully"
+            }
+
+
+    def tokenApprove(self, account_addr, token_amount, wallet):
+        if not wallet.is_unlocked(account_addr):
+            return {
+                "result": "fail",
+                "reason": "Creating account is not known or it's locked - Try unlocking with password first"
+            }
+        account = wallet.create_w3_account(account_addr)
+        
+        w3.eth.default_account = account.address
+        
+        TOKEN = w3.eth.contract(
+            address=self.token_contract_address,
+            abi=self.token_abi
+        )
+        try:
+            transaction = TOKEN.functions.approve(self.contract_address, token_amount).buildTransaction({
+                                    "gasPrice": w3.eth.gas_price, 
+                                    "from": account_addr, 
+                                    'nonce': w3.eth.get_transaction_count(account_addr),
+                                })
+        except Exception as e:
+            logging.error(f'error: {e}')  
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+        signed_txn = wallet.signTransaction(account_addr, transaction)
+
+        try:
+            tx_hash = w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+        except Exception as e:
+            logging.error(f'error: {e}')
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+
+        tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+        status_approved = tx_receipt['status']
+        if not status_approved:
+            return {
+                "result": "fail",
+                "reason": "not able to approve token transfer from address to DEX contract"
+            }
+        try:
+            allowance = TOKEN.functions.allowance(account_addr, self.contract_address).call()
+        except Exception as e:
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+        if not allowance >= token_amount:
+            return  {
+                "result": "fail",
+                "reason": "allowance for transfer is not sufficient"
+            }
+        return {
+            "result": "success",
+            "approved": tx_receipt
+            }
+
+
     def getContractDetails(self, account_addr, wallet):
         if not wallet.is_unlocked(account_addr):
             return {
@@ -121,7 +241,8 @@ class ClientContractManager:
         )
 
         try:
-            eth_balance, tok_balance = DEX.functions.getContractBalance().call()
+            wei_balance, tok_balance = DEX.functions.getContractBalance().call()
+            eth_balance = w3.fromWei(wei_balance, 'ether')
         except Exception as e:
             return {
                 "result": "fail",
@@ -188,7 +309,7 @@ class ClientContractManager:
                                 "gasPrice": w3.eth.gas_price, 
                                 "from": account,
                                 'nonce': w3.eth.get_transaction_count(account),
-                                'value': amount
+                                'value': w3.toWei(amount, 'ether')
                                 })
         except Exception as e:
             logging.error(f'error: {e}')  
@@ -208,7 +329,6 @@ class ClientContractManager:
             }
 
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-        logging.info(f'tx_receipt: {tx_receipt}')
         return {
             "result": "success",
             "reason": f"Successfully bought {amount} Ether in token from contract {self.contract_address}"
