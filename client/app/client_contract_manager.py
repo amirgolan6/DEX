@@ -339,6 +339,63 @@ class ClientContractManager:
         }
 
 
+
+
+
+    def etherToToken(self, account, eth_amount, wallet):
+        if not wallet.is_unlocked(account):
+            return {
+                "result": "fail",
+                "reason": "Creating account is not known or it's locked - Try unlocking with password first"
+            }
+        w3_account = wallet.create_w3_account(account);
+        if w3_account == "Unknown Account":
+            return {
+                "result": "fail",
+                "reason": "Account is unknown or locked. Try unlocking first"
+            }
+
+        DEX = w3.eth.contract(
+            address=self.contract_address,
+            abi=self.abi
+        )
+
+        w3.eth.default_account = w3_account.address
+        try:
+            transaction = DEX.functions.ethToTokenSwap().buildTransaction({
+                                "gasPrice": w3.eth.gas_price, 
+                                "from": account,
+                                'nonce': w3.eth.get_transaction_count(account),
+                                "value": w3.toWei(eth_amount, 'ether')
+                                })
+        except Exception as e:
+            logging.error(f'error: {e}')  
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+        signed_txn = wallet.signTransaction(account, transaction)
+
+        try:
+            tx_hash = w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+        except Exception as e:
+            logging.error(f'error: {e}')
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+
+        tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+        status = tx_receipt['status']
+        logging.info(f'eth2token stats: {status}')
+        return {
+            "result": "success",
+            "reason": f"Successfully sold {eth_amount} ethers for tokens."
+        }    
+
+
+
+
     def tokenToEther(self, account, token_amount, wallet):
         if not wallet.is_unlocked(account):
             return {

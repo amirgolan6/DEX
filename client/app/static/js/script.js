@@ -78,11 +78,11 @@ function tokenToEther(){
     var account = document.getElementById("token_to_ether_addr").value;
     var token_amount = document.getElementById("token_to_ether_amount").value;
     if (token_amount <= 0){
-       document.getElementById('buy_token_res').innerHTML = "Amount must be greater than zero";
+       document.getElementById('token_to_ether_res').innerHTML = "Amount must be greater than zero";
       return;
     }
     if (account == "" ){
-      document.getElementById('buy_token_res').innerHTML = "Contract and Account addresses must be not empty";
+      document.getElementById('token_to_ether_res').innerHTML = "Contract and Account addresses must be not empty";
       return;
     }
     params = {
@@ -120,6 +120,58 @@ function tokenToEther(){
     });
 
 }
+
+
+
+function etherToToken(){
+    var account = document.getElementById("ether_to_token_addr").value;
+    var eth_amount = document.getElementById("ether_to_token_amount").value;
+    if (eth_amount <= 0){
+       document.getElementById('ether_to_token_res').innerHTML = "Amount must be greater than zero";
+      return;
+    }
+    if (account == "" ){
+      document.getElementById('ether_to_token_res').innerHTML = "Contract and Account addresses must be not empty";
+      return;
+    }
+    params = {
+        account: account,
+        eth_amount: eth_amount,
+    }
+
+    var apiUrl = new URL('/api/exchange/ether_to_token', document.baseURI);
+
+    apiUrl.search = new URLSearchParams(params).toString();
+    document.getElementById('ether_to_token_res').innerHTML = "Executing Transaction (might take a minute)...";
+    fetch(apiUrl, {
+        method: 'POST'
+    }).then(response => {
+        return response.json();
+    }).then(data => {
+        if (data["result"] == "fail"){
+            if (data["reason"] == "Invalid public key"){
+                document.getElementById('ether_to_token_res').innerHTML = "Account invalid or doesn't exist";
+            } else {
+                console.log(data);
+                document.getElementById('ether_to_token_res').innerHTML = "Error: " + data["reason"];
+            }
+        } else {
+            document.getElementById('ether_to_token_btn').remove()
+            document.getElementById('ether_to_token_res').innerHTML = data["reason"];
+            console.log(data);
+        }
+    }).catch(err => {
+        console.log("err");
+        console.log(err);
+        if (err["reason"] == "Invalid public key"){
+            document.getElementById('ether_to_token_res').innerHTML = "Account invalid or doesn't exist";
+        }
+    });
+
+}
+
+
+
 
 function createExchange() {
     var account = document.getElementById("add_exchange_addr").value;

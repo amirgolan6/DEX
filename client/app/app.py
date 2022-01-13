@@ -361,6 +361,18 @@ def token_to_ether():
         return approve_transfer
     return jsonify(contract_manager.tokenToEther(account, token_amount, wallet))
 
+@app.route("/api/exchange/ether_to_token", methods=['POST'])
+def ether_to_token():
+    try:
+        account = verify_public_key_syntax(request.args.get('account').strip())
+        eth_amount = int(request.args.get('eth_amount').strip())
+    except (ValueError, TypeError):
+        return jsonify({
+            "result": "fail",
+            "reson": "Params account not included or invalid"
+        })
+    return jsonify(contract_manager.etherToToken(account, eth_amount, wallet))
+
 @app.route("/api/exchange/initialize_lp", methods=['POST'])
 def initialize_lp():
     try:

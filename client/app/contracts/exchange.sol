@@ -217,16 +217,21 @@ contract DEX {
 
 
 
-    // function ethToTokenSwap() public payable returns (uint256 tokenAmount){
-    //     fee: uint256 = msg.value / 500 
-    //     invariant: uint256 = self.eth_pool * self.token_pool
-    //     new_eth_pool: uint256 = self.eth_pool + msg.value
-    //     new_token_pool: uint256 = invariant / (new_eth_pool - fee)
-    //     tokens_out: uint256 = self.token_pool - new_token_pool
-    //     self.eth_pool = new_eth_pool
-    //     self.token_pool = new_token_pool
-    //     self.token.transfer(msg.sender, tokens_out)
-    // }
+    function ethToTokenSwap() public payable {
+        require(initalized_lp == true, "DEX: Liquidity pool not initialized");
+        require(msg.value > 0, "You need to sell at least some ethers");
+
+        uint256 fee = msg.value / 500;
+        uint256 invariant = balance_tok * balance_eth;
+
+        uint256 new_eth_pool = balance_eth + msg.value;
+        uint256 new_token_pool = invariant / (new_eth_pool - fee);
+
+        uint256 tokens_out = balance_tok - new_token_pool;
+        balance_eth = new_eth_pool;
+        balance_tok = new_token_pool;
+        token.transfer(msg.sender, tokens_out);
+    }
 
     
     function tokenToEthSwap(uint256 tokens_in) public payable {
