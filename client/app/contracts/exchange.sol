@@ -19,7 +19,7 @@ contract ERC20Basic is IERC20 {
 
     string public constant name = "ERC20Basic";
     string public constant symbol = "ERC";
-    uint8 public constant decimals = 18;
+    uint8 public constant _decimals = 18;
 
 
     event TokenApproval(address indexed tokenOwner, address indexed spender, uint tokens);
@@ -230,22 +230,24 @@ contract DEX {
 
     
     function tokenToEthSwap(uint256 tokens_in) public payable {
+        require(initalized_lp == true, "DEX: Liquidity pool not initialized");
         require(tokens_in > 0, "You need to sell at least some tokens");
         uint256 allowance = token.allowance(msg.sender, address(this));
         require(allowance >= tokens_in, "Check the token allowance");
+
         uint256 fee = tokens_in / 500;
         uint256 invariant = balance_tok * balance_eth;
         uint256 new_token_pool = balance_tok + tokens_in;
-        uint256 tokens_out = balance_tok - new_token_pool;
+        //uint256 tokens_out = balance_tok - new_token_pool;
         uint256 new_eth_pool = invariant / (new_token_pool - fee);
         uint256 eth_out = balance_eth - new_eth_pool;
+
         balance_eth = new_eth_pool;
         balance_tok = new_token_pool;
-        token.transferFrom(msg.sender, address(this), tokens_out);
+        token.transferFrom(msg.sender, address(this), tokens_in);
         payable(msg.sender).transfer(eth_out);
+        emit SellTokens(msg.sender, tokens_in, eth_out);
     }
-
-
              
     //The first liquidity provider to invest in an exchange must initialise it. 
     //This is done by depositing some amount of both ETH and the exchange token into the contract, which sets the initial exchange rate. 

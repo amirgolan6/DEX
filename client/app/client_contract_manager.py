@@ -241,8 +241,11 @@ class ClientContractManager:
         )
 
         try:
-            wei_balance, tok_balance = DEX.functions.getContractBalance().call()
+            wei_balance, tok_balance_in_wei = DEX.functions.getContractBalance().call()
             eth_balance = w3.fromWei(wei_balance, 'ether')
+            tok_balance_in_eth = w3.fromWei(tok_balance_in_wei, 'ether')
+            tokensPerEth = 100
+            tok_quantity = tok_balance_in_eth * tokensPerEth
         except Exception as e:
             return {
                 "result": "fail",
@@ -254,7 +257,8 @@ class ClientContractManager:
             "dex_contract_address": self.contract_address,
             "token_contract_address": self.token_contract_address,
             "eth_balance": eth_balance,
-            "tok_balance": tok_balance
+            "tok_balance": tok_balance_in_eth,
+            "tok_quantity": tok_quantity
         }
 
 
@@ -335,6 +339,54 @@ class ClientContractManager:
         }
 
 
+    def tokenToEther(self, account, token_amount, wallet):
+        if not wallet.is_unlocked(account):
+            return {
+                "result": "fail",
+                "reason": "Creating account is not known or it's locked - Try unlocking with password first"
+            }
+        w3_account = wallet.create_w3_account(account);
+        if w3_account == "Unknown Account":
+            return {
+                "result": "fail",
+                "reason": "Account is unknown or locked. Try unlocking first"
+            }
+
+        DEX = w3.eth.contract(
+            address=self.contract_address,
+            abi=self.abi
+        )
+
+        w3.eth.default_account = w3_account.address
+        try:
+            transaction = DEX.functions.tokenToEthSwap(token_amount).buildTransaction({
+                                "gasPrice": w3.eth.gas_price, 
+                                "from": account,
+                                'nonce': w3.eth.get_transaction_count(account),
+                                })
+        except Exception as e:
+            logging.error(f'error: {e}')  
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+        signed_txn = wallet.signTransaction(account, transaction)
+
+        try:
+            tx_hash = w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+        except Exception as e:
+            logging.error(f'error: {e}')
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+
+        tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+        status = tx_receipt['status']
+        return {
+            "result": "success",
+            "reason": f"Successfully sold {token_amount} tokens for ether."
+        }     
 
     def sellToken(self, account, amount, wallet):
         if not wallet.is_unlocked(account):

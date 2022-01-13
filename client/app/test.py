@@ -175,7 +175,7 @@ def buyTokens(account, amount, wallet, contract_address):
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     return {
         "result": "success",
-        "transaction": transaction
+        "transaction": tx_receipt['status']
         }
 
 
@@ -199,14 +199,6 @@ def sellTokens(account, amount, wallet, contract_address):
 
     w3.eth.default_account = w3_account.address
     try:
-        # approved = DEX.functions.approve(w3_account.address, amount).call()
-        # print(f'approved: {approved}')
-        # if not approved:
-        #     logging.error(f'Failed to sell token, unapproved transaction')
-        #     return {
-        #         "result": "fail",
-        #         "reason": "Failed to sell token, unapproved transaction"
-        #     }
         sold = DEX.functions.sellTokens(amount).transact({
                                 "gasPrice": w3.eth.gas_price, 
                                 "from": account, 
@@ -280,7 +272,7 @@ def initialize(account, tok_amount, eth_amount, wallet, contract_address):
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     return {
         "result": "success",
-        "transaction": transaction
+        "tx_receipt": tx_receipt['status']
         }
 
 def tokenApprove(account_addr, token_contract_address, dex_contract_address, amount, wallet):
@@ -323,7 +315,7 @@ def tokenApprove(account_addr, token_contract_address, dex_contract_address, amo
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     return {
         "result": "success",
-        "approved": tx_receipt
+        "approved": tx_receipt['status']
         }
 
 def tokenAllowence(account_addr, token_contract_address, dex_contract_address, wallet):
@@ -352,6 +344,58 @@ def tokenAllowence(account_addr, token_contract_address, dex_contract_address, w
     return {
         "result": "success",
         "allowance": allowance
+    }
+
+
+def tokenToEther(account, token_amount,dex_contract_address, wallet):
+    if not wallet.is_unlocked(account):
+        return {
+            "result": "fail",
+            "reason": "Creating account is not known or it's locked - Try unlocking with password first"
+        }
+    w3_account = wallet.create_w3_account(account);
+    if w3_account == "Unknown Account":
+        return {
+            "result": "fail",
+            "reason": "Account is unknown or locked. Try unlocking first"
+        }
+
+    DEX = w3.eth.contract(
+        address=dex_contract_address,
+        abi=abi
+    )
+
+    w3.eth.default_account = w3_account.address
+    try:
+        logging.info(f'before transaction execution token2ether')
+        transaction = DEX.functions.tokenToEthSwap(token_amount).buildTransaction({
+                            "gasPrice": w3.eth.gas_price, 
+                            "from": account,
+                            'nonce': w3.eth.get_transaction_count(account),
+                            })
+    except Exception as e:
+        logging.error(f'error: {e}')  
+        return {
+            "result": "fail",
+            "reason": str(e)
+        }
+    signed_txn = wallet.signTransaction(account, transaction)
+
+    try:
+        tx_hash = w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+    except Exception as e:
+        logging.error(f'error: {e}')
+        return {
+            "result": "fail",
+            "reason": str(e)
+        }
+
+    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    status = tx_receipt['status']
+    logging.info(f'tok2ether receipt: {status}')
+    return {
+        "result": "success",
+        "reason": f"success"
     }
 
 def main():
@@ -388,12 +432,13 @@ def main():
     # print(f'sell txn: {sell_txn}')
 
 
-    init = initialize('0x820Fa62Eb7c3464F41426f80784EE6A8cD9Cac10', 1, 1, wallet, dex_contract_address)
+    init = initialize('0x820Fa62Eb7c3464F41426f80784EE6A8cD9Cac10', 100, 5, wallet, dex_contract_address)
     print(f'init: {init}')
 
     # balance = getTokBalance('0x820Fa62Eb7c3464F41426f80784EE6A8cD9Cac10',contract_address ,wallet)['balance']
     # print(f'balance after: {balance}')
-
+    token2ether = tokenToEther('0x820Fa62Eb7c3464F41426f80784EE6A8cD9Cac10', 50 ,dex_contract_address, wallet)
+    print(f'token2ether: {token2ether}')
 
 if __name__ == '__main__':
 	main()

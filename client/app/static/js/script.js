@@ -74,6 +74,53 @@ function initializeLP(){
 }
 
 
+function tokenToEther(){
+    var account = document.getElementById("token_to_ether_addr").value;
+    var token_amount = document.getElementById("token_to_ether_amount").value;
+    if (token_amount <= 0){
+       document.getElementById('buy_token_res').innerHTML = "Amount must be greater than zero";
+      return;
+    }
+    if (account == "" ){
+      document.getElementById('buy_token_res').innerHTML = "Contract and Account addresses must be not empty";
+      return;
+    }
+    params = {
+        account: account,
+        token_amount: token_amount,
+    }
+
+    var apiUrl = new URL('/api/exchange/token_to_ether', document.baseURI);
+
+    apiUrl.search = new URLSearchParams(params).toString();
+    document.getElementById('token_to_ether_res').innerHTML = "Executing Transaction (might take a minute)...";
+    fetch(apiUrl, {
+        method: 'POST'
+    }).then(response => {
+        return response.json();
+    }).then(data => {
+        if (data["result"] == "fail"){
+            if (data["reason"] == "Invalid public key"){
+                document.getElementById('token_to_ether_res').innerHTML = "Account invalid or doesn't exist";
+            } else {
+                console.log(data);
+                document.getElementById('token_to_ether_res').innerHTML = "Error: " + data["reason"];
+            }
+        } else {
+            document.getElementById('token_to_ether_btn').remove()
+            document.getElementById('token_to_ether_res').innerHTML = data["reason"];
+            console.log(data);
+        }
+    }).catch(err => {
+        console.log("err");
+        console.log(err);
+        if (err["reason"] == "Invalid public key"){
+            document.getElementById('account_balance').innerHTML = "Account invalid or doesn't exist";
+        }
+    });
+
+}
+
 function createExchange() {
     var account = document.getElementById("add_exchange_addr").value;
     var apiUrl = new URL('/api/exchange/create', document.baseURI),
@@ -138,7 +185,8 @@ function getContractDetails(){
         else {
             document.getElementById('get_contract_details_btn').remove()
             str = '<b>DEX Address: ' + data['dex_contract_address'] + '</b><br>' + '<b>\n Token Address: ' + data['token_contract_address'] + 
-            '</b><br>' + '<b>\n ETH Balance: ' + data['eth_balance'] + '</b><br>' + '<b>\n Token Balance: ' + data['tok_balance'] + '</b><br>';
+            '</b><br>' + '<b>\n ETH Balance: ' + data['eth_balance'] + '</b><br>' + '<b>\n Tokens Quantity in Ether: ' + data['tok_balance'] + '</b><br>' 
+            + '<b>\n Tokens Quantity: ' + data['tok_quantity'] + '</b><br>';
             document.getElementById('get_contract_details_res').innerHTML = str;
             console.log(data);
         }
