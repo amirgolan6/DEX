@@ -373,6 +373,10 @@ def ether_to_token():
         })
     return jsonify(contract_manager.etherToToken(account, eth_amount, wallet))
 
+
+
+
+
 @app.route("/api/exchange/initialize_lp", methods=['POST'])
 def initialize_lp():
     try:
@@ -390,6 +394,30 @@ def initialize_lp():
     
     result = contract_manager.initializeLP(account, token_amount, eth_amount, wallet)
     return jsonify(result)
+
+
+
+@app.route("/api/exchange/add_liquidity", methods=['POST'])
+def add_liquidity():
+    try:
+        account = verify_public_key_syntax(request.args.get('account').strip())
+        eth_amount = int(request.args.get('eth_amount').strip())
+        token_amount = int(request.args.get('token_amount').strip())
+    except (ValueError, TypeError):
+        return jsonify({
+            "result": "fail",
+            "reson": "Params account not included or invalid"
+        })
+    approve_transfer = contract_manager.tokenApprove(account, token_amount, wallet)
+    if approve_transfer['result'] == "fail":
+        return approve_transfer
+    
+    result = contract_manager.addLiquidity(account, token_amount, eth_amount, wallet)
+    return jsonify(result)
+
+
+
+
 
 @app.route("/api/exchange/details", methods=['GET'])
 def get_contract_details():

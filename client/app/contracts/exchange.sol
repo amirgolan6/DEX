@@ -274,14 +274,40 @@ contract DEX {
         balance_tok = tokens_invested;
         eth_tok_invariant = balance_eth * balance_tok;
 
-        //initial liquidity pool token in 1:1 with ETH
-        balance_lqt = eth_invested;
+        //initial liquidity pool token in 1:5 with ETH
+        balance_lqt = eth_invested * 5;
         shares[msg.sender] = balance_lqt;
         eth_lqt_invariant = balance_eth * balance_lqt;
 
         token.transferFrom(msg.sender, address(this), tokens_invested);
     }
 
+
+    function addLiquidity(uint256 tokens_invested) public payable {
+        require(initialized_lp == true, "DEX: Liquidity pool not initialized");
+        require(tokens_invested > 0, "You need to sell at least some tokens");
+        require(msg.value > 0, "You need to sell at least some ethers");
+        uint256 allowance = token.allowance(msg.sender, address(this));
+        require(allowance >= tokens_invested, "Check the token allowance");
+
+        uint256 eth_tok_ratio = balance_eth / balance_tok;
+        uint256 lp_ratio =  msg.value  / tokens_invested;
+        require(eth_tok_ratio == lp_ratio, "The liquidity provided does not match the current ETH/Token ratio");
+
+        uint256 eth_invested = msg.value;
+
+        // Add liquidity pool tokens to sender
+        uint256 shares_minted  = (eth_invested * balance_lqt) / balance_eth;
+        shares[msg.sender] = shares[msg.sender] + shares_minted;
+
+        //uint256 new_tokens = (shares_minted * balance_tok) / balance_lqt);
+        balance_lqt = balance_lqt + shares_minted;
+
+        balance_eth = balance_eth + eth_invested;
+        balance_tok = balance_tok + tokens_invested;
+        token.transferFrom(msg.sender, address(this), tokens_invested);
+
+    }
 
     // @public
     // @payable

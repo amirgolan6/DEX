@@ -158,6 +158,66 @@ class ClientContractManager:
             }
 
 
+
+    def addLiquidity(self, account, tok_amount, eth_amount, wallet):
+        if not wallet.is_unlocked(account):
+            return {
+                "result": "fail",
+                "reason": "Creating account is not known or it's locked - Try unlocking with password first"
+            }
+        w3_account = wallet.create_w3_account(account);
+        if w3_account == "Unknown Account":
+            return {
+                "result": "fail",
+                "reason": "Account is unknown or locked. Try unlocking first"
+            }
+
+        DEX = w3.eth.contract(
+            address=self.contract_address,
+            abi=self.abi
+        )
+
+        w3.eth.default_account = w3_account.address
+        try:
+
+            transaction = DEX.functions.addLiquidity(tok_amount).buildTransaction({
+                                    "gasPrice": w3.eth.gas_price, 
+                                    "from": account, 
+                                    'nonce': w3.eth.get_transaction_count(account),
+                                    'value': w3.toWei(eth_amount, 'ether')
+                                    })
+        except Exception as e:
+            logging.error(f'error: {e}')  
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+        signed_txn = wallet.signTransaction(account, transaction)
+
+        try:
+            tx_hash = w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+        except Exception as e:
+            logging.error(f'error: {e}')
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+
+        tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+        if not status_approved:
+            return {
+                "result": "fail",
+                "reason": "not able to initialize liquidity pool"
+            }
+
+        return {
+            "result": "success",
+            "status": "Added liquidity to pool successfully"
+            }
+
+
+
+
     def tokenApprove(self, account_addr, token_amount, wallet):
         if not wallet.is_unlocked(account_addr):
             return {

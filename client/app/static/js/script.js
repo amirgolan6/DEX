@@ -73,6 +73,94 @@ function initializeLP(){
     });
 }
 
+
+function getLiquidityRatio(){
+    var account = document.getElementById("add_liquidity_addr").value;
+    var apiUrl = new URL('/api/exchange/lp_balance', document.baseURI);
+    params = {
+        account: account
+    }
+    if (account == ""){
+      document.getElementById('add_liquidity_ratio_res').innerHTML = "Account must be not empty";
+      return;
+    }
+    apiUrl.search = new URLSearchParams(params).toString();
+    document.getElementById('add_liquidity_ratio_res').innerHTML = "Getting balances...";
+    fetch(apiUrl, {
+        method: 'GET'
+    }).then(response => {
+        return response.json();
+    }).then(data => {
+        if (data["result"] == "fail"){
+            console.log(data);
+            document.getElementById('add_liquidity_ratio_res').innerHTML = "Error: " + data["reason"];
+        }
+        else {
+            //document.getElementById('add_liquidity_ratio_btn').remove();
+            str = '<b>EtH Balance: ' + data['eth_balance'] + '</b><br>' + '<b>\n Token Balance: ' + data['token_balance'] + 
+            '</b><br>' + '<b>\n Liquidity Pool Tokens Balance: ' + data['lp_balance'] + '</b><br>';
+            ratio_str = '<b>\n Tokens/ETH Ratio: ' + (data['token_balance']/data['eth_balance']) + ':1</b><br>';
+            
+            document.getElementById('add_liquidity_ratio_res').innerHTML = str + ratio_str;
+            console.log(data);
+        }
+    }).catch(err => {
+        console.log(err);
+    
+    });
+}
+
+function addLiquidity(){
+    var account = document.getElementById("add_liquidity_addr").value;
+    var eth_amount = document.getElementById("add_liquidity_eth_amount").value;
+    var token_amount = document.getElementById("add_liquidity_token_amount").value;
+    if (eth_amount <= 0 || token_amount <=0){
+       document.getElementById('add_liquidity_add_res').innerHTML = "Both amounts must be greater than zero";
+      return;
+    }
+    if (account == ""){
+      document.getElementById('add_liquidity_add_res').innerHTML = "Contract and Account addresses must be not empty";
+      return;
+    }
+    params = {
+        account: account,
+        eth_amount: eth_amount,
+        token_amount: token_amount
+    }
+
+    var apiUrl = new URL('/api/exchange/add_liquidity', document.baseURI);
+
+    apiUrl.search = new URLSearchParams(params).toString();
+    document.getElementById('add_liquidity_add_res').innerHTML = "<br><br>Executing Transaction (might take a minute)...<br><br>";
+    fetch(apiUrl, {
+        method: 'POST'
+    }).then(response => {
+        return response.json();
+    }).then(data => {
+        if (data["result"] == "fail"){
+            if (data["reason"] == "Invalid public key"){
+                document.getElementById('add_liquidity_add_res').innerHTML = "Account invalid or doesn't exist";
+            } else {
+                console.log(data);
+                document.getElementById('add_liquidity_add_res').innerHTML = "Error: " + data["reason"];
+            }
+        } else {
+            document.getElementById('add_liquidity_add_btn').remove()
+            document.getElementById('add_liquidity_add_res').innerHTML = "<br><br><strong>Added Liquidity to Pool Successfully</strong><br><br>";
+            console.log(data);
+        }
+    }).catch(err => {
+        console.log("err");
+        console.log(err);
+        if (err["reason"] == "Invalid public key"){
+            document.getElementById('add_liquidity_add_res').innerHTML = "Account invalid or doesn't exist";
+        }
+    });
+
+}
+
+
+
 function getLPbalance(){
     var account = document.getElementById("lp_balance_addr").value;
     var apiUrl = new URL('/api/exchange/lp_balance', document.baseURI);
@@ -96,7 +184,7 @@ function getLPbalance(){
         }
         else {
             document.getElementById('lp_balance_btn').remove();
-            str = '<b>EtH Balance: ' + data['eth_balance'] + '</b><br>' + '<b>\n Token Balance: ' + data['token_balance'] + 
+            str = '<br><br><br><b>EtH Balance: ' + data['eth_balance'] + '</b><br>' + '<b>\n Token Balance: ' + data['token_balance'] + 
             '</b><br>' + '<b>\n Liquidity Pool Tokens Balance: ' + data['lp_balance'] + '</b><br>';
             document.getElementById('lp_balance_res').innerHTML = str;
             console.log(data);
