@@ -74,6 +74,76 @@ function initializeLP(){
 }
 
 
+function burnLiquidity(){
+    var account = document.getElementById("burn_liquidity_addr").value;
+    var lqt_amount = document.getElementById("burn_liquidity_lqt_amount").value;
+    var apiUrl = new URL('/api/exchange/burn_liquidity', document.baseURI);
+    params = {
+        account: account,
+        lqt_amount: lqt_amount
+    }
+    if (account == "" || lqt_amount <= 0){
+      document.getElementById('burn_liquidity_res').innerHTML = "Account and LQT amount must be not empty";
+      return;
+    }
+    apiUrl.search = new URLSearchParams(params).toString();
+    document.getElementById('burn_liquidity_res').innerHTML = "Burning LQT...";
+    fetch(apiUrl, {
+        method: 'POST'
+    }).then(response => {
+        return response.json();
+    }).then(data => {
+        if (data["result"] == "fail"){
+            console.log(data);
+            document.getElementById('burn_liquidity_res').innerHTML = "Error: " + data["reason"];
+        }
+        else {
+            document.getElementById('burn_liquidity_btn').remove();
+            document.getElementById('burn_liquidity_res').innerHTML = data["reason"];
+            console.log(data);
+        }
+    }).catch(err => {
+        console.log(err);
+    
+    });
+}
+
+function getUserLQTBalance(){
+    var account = document.getElementById("burn_liquidity_addr").value;
+    var apiUrl = new URL('/api/exchange/lqt_balances', document.baseURI);
+    params = {
+        account: account
+    }
+    if (account == ""){
+      document.getElementById('burn_liquidity_lqt_balance_res').innerHTML = "Account must be not empty";
+      return;
+    }
+    apiUrl.search = new URLSearchParams(params).toString();
+    document.getElementById('burn_liquidity_lqt_balance_res').innerHTML = "Getting LQT balance...";
+    fetch(apiUrl, {
+        method: 'GET'
+    }).then(response => {
+        return response.json();
+    }).then(data => {
+        if (data["result"] == "fail"){
+            console.log(data);
+            document.getElementById('burn_liquidity_lqt_balance_res').innerHTML = "Error: " + data["reason"];
+        }
+        else {
+            //document.getElementById('add_liquidity_ratio_btn').remove();
+            user_lqt = '<b>User LQT Balance: ' + data['user_lqt_balance'] + '</b><br><br>';
+            total_lqt = '<b>Total LQT Balance: ' + data['total_lqt'] + '</b><br><br>';
+            document.getElementById('burn_liquidity_lqt_balance_res').innerHTML = user_lqt + total_lqt;
+            console.log(data);
+        }
+    }).catch(err => {
+        console.log(err);
+    
+    });
+}
+
+
+
 function getLiquidityRatio(){
     var account = document.getElementById("add_liquidity_addr").value;
     var apiUrl = new URL('/api/exchange/lp_balance', document.baseURI);

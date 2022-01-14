@@ -442,6 +442,31 @@ def get_lp_balance():
     return jsonify(contract_manager.getLPbalance(account, wallet))
 
 
+@app.route("/api/exchange/lqt_balances", methods=['GET'])
+def lqt_balances():
+    try:
+        account = verify_public_key_syntax(request.args.get('account').strip())
+    except (ValueError, TypeError):
+        return jsonify({
+            "result": "fail",
+            "reson": "Params account not included or invalid"
+        })
+    return jsonify(contract_manager.getLQTBalances(account, wallet))
+
+
+@app.route("/api/exchange/burn_liquidity", methods=['POST'])
+def burn_liquidity():
+    try:
+        account = verify_public_key_syntax(request.args.get('account').strip())
+        lqt_amount = int(request.args.get('lqt_amount').strip())
+    except (ValueError, TypeError):
+        return jsonify({
+            "result": "fail",
+            "reson": "Params account not included or invalid"
+        })
+    return jsonify(contract_manager.burnLiquidity(account, lqt_amount, wallet))
+
+
 
 @app.route("/api/exchange/sell_token", methods=['POST'])
 def sell_token():

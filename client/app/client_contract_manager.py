@@ -204,6 +204,7 @@ class ClientContractManager:
             }
 
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+        status_approved = tx_receipt['status']
         if not status_approved:
             return {
                 "result": "fail",
@@ -396,6 +397,102 @@ class ClientContractManager:
         return {
             "result": "success",
             "reason": f"Successfully bought {amount} Ether in token from contract {self.contract_address}"
+        }
+
+
+
+    def burnLiquidity(self, account, lqt_amount, wallet):
+        if not wallet.is_unlocked(account):
+            return {
+                "result": "fail",
+                "reason": "Creating account is not known or it's locked - Try unlocking with password first"
+            }
+        w3_account = wallet.create_w3_account(account);
+        if w3_account == "Unknown Account":
+            return {
+                "result": "fail",
+                "reason": "Account is unknown or locked. Try unlocking first"
+            }
+
+        DEX = w3.eth.contract(
+            address=self.contract_address,
+            abi=self.abi
+        )
+
+        w3.eth.default_account = w3_account.address
+        try:
+
+            transaction = DEX.functions.burnLiquidity(w3.toWei(lqt_amount, 'ether')).buildTransaction({
+                                    "gasPrice": w3.eth.gas_price, 
+                                    "from": account, 
+                                    'nonce': w3.eth.get_transaction_count(account),
+                                    })
+        except Exception as e:
+            logging.error(f'error: {e}')  
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+        signed_txn = wallet.signTransaction(account, transaction)
+
+        try:
+            tx_hash = w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+        except Exception as e:
+            logging.error(f'error: {e}')
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+
+        tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+        status_approved = tx_receipt['status']
+        logging.info(f'burn status: {status_approved}')
+        if not status_approved:
+            return {
+                "result": "fail",
+                "reason": "not able to burn liquidity tokens"
+            }
+
+        return {
+            "result": "success",
+            "reason": "Burned liquidity tokens successfully."
+            }
+
+    def getLQTBalances(self, account_addr, wallet):
+        if not wallet.is_unlocked(account_addr):
+            return {
+                "result": "fail",
+                "reason": "Creating account is not known or it's locked - Try unlocking with password first"
+            }
+        account = wallet.create_w3_account(account_addr)
+        
+        w3.eth.default_account = account.address
+        if self.contract_address == None:
+            return {
+                "result": "fail",
+                "reason": f"DEX doesn't exists. Please create it first"
+        }
+
+        DEX = w3.eth.contract(
+            address=self.contract_address,
+            abi=self.abi
+        )
+
+        try:
+            user_lqt_wei_balance, total_wei_lqt = DEX.functions.lqtBalance().call()
+            user_lqt_balance = w3.fromWei(user_lqt_wei_balance, 'ether')
+            total_lqt = w3.fromWei(total_wei_lqt, 'ether')
+        except Exception as e:
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+
+        return {
+            "result": "success",
+            "user_lqt_balance": user_lqt_balance,
+            "total_lqt": total_lqt
+
         }
 
     def getLPbalance(self, account_addr, wallet):

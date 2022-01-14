@@ -1,1 +1,93 @@
-a
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Burn Liquidity</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+    <style>
+      html, body {
+      display: flex;
+      justify-content: left;
+      font-family: Roboto, Arial, sans-serif;
+      font-size: 12px;
+      }
+      form {
+      border: 5px solid #f1f1f1;
+      }
+      input[type=text], input[type=password] {
+      width: 100%;
+      padding: 16px 8px;
+      margin: 8px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      }
+      button {
+      background-color: #8ebf42;
+      color: white;
+      padding: 14px 0;
+      margin: 10px 0;
+      border: none;
+      cursor: grabbing;
+      width: 100%;
+      }
+      h1 {
+      text-align:left;
+      font-size:18;
+      }
+      button:hover {
+      opacity: 0.8;
+      }
+      .formcontainer {
+      text-align: left;
+      margin: 24px 50px 12px;
+      }
+      .container {
+      padding: 16px 0;
+      text-align:left;
+      }
+      span.psw {
+      float: right;
+      padding-top: 0;
+      padding-right: 15px;
+      }
+      /* Change styles for span on extra small screens */
+      @media screen and (max-width: 300px) {
+      span.psw {
+      display: block;
+      float: none;
+      }
+      }
+    </style>
+  </head>
+  <body>
+    <form>
+      <h1>Burn Liquidity</h1>
+      <strong>In order to burn liquidity, you can first get the total LQT amount and LQT balance for this account address (must be unlocked).</strong><br>
+      <strong>Then, enter LQT amount to burn.</strong><br>
+      <strong>Burning LQT liquidity will grant you both ETH and Tokens proportionally to your LQT holdings.</strong><br>
+      <div class="formcontainer">
+      <hr/>
+      <div class="container">
+        <label for="sk"><strong>Account Address (must be unlocked first)</strong></label>
+        <input type="text" placeholder="Enter Account Address" id="burn_liquidity_addr" required>
+      </div>
+        <div class="container">
+        <label for="sk"><strong>LQT Amount to Burn</strong></label>
+        <input type="number" placeholder="Enter LQT Amount" id="burn_liquidity_lqt_amount" required>
+      </div>
+      
+      <button type="button" id="burn_liquidity_lqt_balance_btn" onclick="getUserLQTBalance();">Get LQT Balances</button>
+      <label type=type2 id="burn_liquidity_lqt_balance_res"></label>
+      <label type=type2></label>
+      <label type=type2></label>
+      
+      <button type="button" id="burn_liquidity_btn" onclick="burnLiquidity();">Burn Liquidity</button>
+      <label type=type2 id="burn_liquidity_res"></label>
+      <label type=type2></label>
+      <label type=type2></label>
+      <div class="container" style="background-color: #eee">
+      </div>
+    </form>
+  </body>
+  <script src="/static/js/script.js"></script>
+</html>

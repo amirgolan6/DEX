@@ -221,6 +221,11 @@ contract DEX {
     }
 
 
+    function lqtBalance() public view returns (uint256, uint256) {
+        return (shares[msg.sender], balance_lqt);
+    }
+
+
     function ethToTokenSwap() public payable {
         require(initialized_lp == true, "DEX: Liquidity pool not initialized");
         require(msg.value > 0, "You need to sell at least some ethers");
@@ -308,6 +313,25 @@ contract DEX {
         token.transferFrom(msg.sender, address(this), tokens_invested);
 
     }
+
+
+    function burnLiquidity(uint256 lqt_amount) public {
+        require(initialized_lp == true, "DEX: Liquidity pool not initialized");
+        require(lqt_amount > 0, "You need to burn at least some LQT");
+        require(shares[msg.sender] >= lqt_amount, "Not sufficient LQT for account to burn this amount");
+
+        shares[msg.sender] = shares[msg.sender] - lqt_amount;
+
+        uint256 eth_out = (lqt_amount * balance_eth) / balance_lqt;
+        uint256 tokens_out = (lqt_amount *  balance_tok) / balance_lqt;
+
+        balance_lqt = balance_lqt - lqt_amount;
+        balance_eth = balance_eth - eth_out;
+        balance_tok = balance_tok - tokens_out;
+        token.transfer(msg.sender, tokens_out);
+        payable(msg.sender).transfer(eth_out);
+    }
+
 
     // @public
     // @payable

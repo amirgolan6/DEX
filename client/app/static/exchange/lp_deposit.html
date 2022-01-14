@@ -62,7 +62,7 @@
   <body>
     <form>
       <h1>Add Liquidity to Pool</h1>
-      <strong>In order to provide liquidity to the pool, first get the current ETH/Token ratio (must enter an unlocked account for this).</strong><br>
+      <strong>In order to provide liquidity to the pool, you can first get the current ETH/Token ratio and LQT balance (must enter an unlocked account for this).</strong><br>
       <strong>Then, enter ETH and Token amounts with the same ratio.</strong><br>
       <strong>Providing liquidity will grant you liquidity tokens which you can later burn.</strong><br>
       <div class="formcontainer">
@@ -84,7 +84,7 @@
       <label type=type2 id="add_liquidity_add_res"></label>
       <label type=type2></label>
       <label type=type2></label>
-      <button type="button" id="add_liquidity_ratio_btn" onclick="getLiquidityRatio();">Get Current ETH/Token Ratio</button>
+      <button type="button" id="add_liquidity_ratio_btn" onclick="getLiquidityRatio();">Get Pool Stats (ETH/Token Ratio and Total LQT)</button>
       <label type=type2 id="add_liquidity_ratio_res"></label>
       <div class="container" style="background-color: #eee">
       </div>
