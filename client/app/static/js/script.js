@@ -131,7 +131,7 @@ function getUserLQTBalance(){
         }
         else {
             //document.getElementById('add_liquidity_ratio_btn').remove();
-            user_lqt = '<b>User LQT Balance: ' + data['user_lqt_balance'] + '</b><br><br>';
+            user_lqt = '<b>Account LQT Balance: ' + data['user_lqt_balance'] + '</b><br><br>';
             total_lqt = '<b>Total LQT Balance: ' + data['total_lqt'] + '</b><br><br>';
             document.getElementById('burn_liquidity_lqt_balance_res').innerHTML = user_lqt + total_lqt;
             console.log(data);
@@ -814,7 +814,7 @@ function listAccounts(){
         var table = document.createElement('table');
         let thead = table.createTHead();
         let row = thead.insertRow();
-        for (let key of ['Account','State', 'Eth Balance', 'Tok Balance']) {
+        for (let key of ['Account','State', 'Eth Balance', 'Token Balance', 'LQT Balance']) {
             let th = document.createElement("th");
             let text = document.createTextNode(key);
             th.appendChild(text);
@@ -838,6 +838,10 @@ function listAccounts(){
 
             cell = row.insertCell();
             text = document.createTextNode(element['tok_balance'] > 0 ? element['tok_balance'] : 0);
+            cell.appendChild(text);
+
+            cell = row.insertCell();
+            text = document.createTextNode(element['account_lqt_balance'] > 0 ? element['account_lqt_balance'] : 0);
             cell.appendChild(text);
 
         }

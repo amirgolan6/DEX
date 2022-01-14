@@ -479,8 +479,8 @@ class ClientContractManager:
         )
 
         try:
-            user_lqt_wei_balance, total_wei_lqt = DEX.functions.lqtBalance().call()
-            user_lqt_balance = w3.fromWei(user_lqt_wei_balance, 'ether')
+            account_lqt_wei_balance, total_wei_lqt = DEX.functions.lqtBalance().call()
+            account_lqt_balance = w3.fromWei(account_lqt_wei_balance, 'ether')
             total_lqt = w3.fromWei(total_wei_lqt, 'ether')
         except Exception as e:
             return {
@@ -490,7 +490,7 @@ class ClientContractManager:
 
         return {
             "result": "success",
-            "user_lqt_balance": user_lqt_balance,
+            "account_lqt_balance": account_lqt_balance,
             "total_lqt": total_lqt
 
         }

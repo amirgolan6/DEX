@@ -14,9 +14,49 @@ To quickly run all components locally on your machine, run:
 
 - access the client at http://localhost:8000 using your browser.
 
-### Crowdfunding Client
 
-The client runs on each users computer and allows you to safely use your private keys without exposing them to anyone. The client interacts with the blockchain to execute contracts.
+## Overview
+
+This project implements DEX AMM to allow one to handle accounts and perform trading operation using smart contracts.
+
+## Compoonents
+
+The project consists of 2 main components:
+
+### Wallet
+
+When the client is run on your computer, it will run a wallet that manages your accounts locally. The wallet allows you to create private and public key pairs, sign transactions and store the private keys safely.
+All private keys are encrypted using a password that you choose and cannot be accessed by anyone who doesn't have your password. The private keys never leave your computer and are only used locally.
+
+Wallet operations available:
+
+- List accounts & balances
+
+- Create account (new key pair)
+
+- Add existing account
+
+- Delete account
+
+- Lock account (will use your password to encrypt the private key)
+
+- Unlock account
+
+- Get account private key (account must be unlocked first)
+
+To use any account to perform any of the DEX operations, you will first have to unlock your account using your password. The account must be known to the wallet and in unlocked state,
+
+
+### DEX With AMM
+
+The DEX component is what you are here for. First, it allows you to perform direct trades with tokens (buying and selling). 
+After the liquidity pool is initialized with both ETH and tokens, it allows one to convert between tokens and ethers from the liquidity provided to the pool, while maintaining the liquidity invariant Balance(ETH) * Balance(Tokens) * Balance(LQT) constant, while charging a 0.2% fee from the conversion amount (either tokens or ETH). 
+The liquidity invariant Balance(ETH) * Balance(Tokens) that will be maintained is determined by the first liquidity provider (the account that initialized the pool with some ETH and tokens), and by setting the initial LQT amount with a 1:5 proportion with the ETH provided.
+Also, after the liquidity pool hab been initialized, one can add or burn liquidity. 
+Adding liquidity is possible by providing both (ETH, Tokens) such that they respect the liquidity invariant (invariant stats are available in the relvent page), which grant the liquidity provider LQT.
+The LQT can be later burned to receive ETH and Tokens.
+Stats utilities are also avaialable to see pool details.
+
 
 
 ### Server Database
@@ -40,28 +80,7 @@ After configuring the correct database the project will be full ready to run.
 
 The client can be accessed in GUI or API form. The GUI is available at http://localhost:8000 once the docker container is run and the API openAPI (swagger) can be found at http://localhost:8000/api
 
-### Wallet
 
-When the client is run on your computer, it will run a wallet that manages your accounts locally. The wallet allows you to create private and public key pairs, sign transactions and store the private keys safely.
-All private keys are encrypted using a password that you choose and cannot be accessed by anyone who doesn't have your password. The private keys never leave your computer and are only used locally.
-
-Wallet operations available:
-
-- Create new key pair
-
-- Upload and save existing keys
-
-- Lock account (will use your password to encrypt the private key)
-
-- Unlock account
-
-- Get account balance
-
-- Get private key - account must be unlocked
-
-To use any account for crowdfunding operations, the account must be known to the wallet and in unlocked state.
-
-All operations require an account to be loaded in the wallet and unlocked.
 
 ## Addiotional Configurations
 

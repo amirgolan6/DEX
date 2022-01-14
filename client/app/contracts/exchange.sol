@@ -333,17 +333,6 @@ contract DEX {
     }
 
 
-    // @public
-    // @payable
-    // def invest(min_shares: uint256, timeout: uint256):
-    // eth_invested: uint256 = msg.value
-    // shares_minted: uint256 = (eth_invested * self.total_shares) / self.eth_pool
-    // tokens_invested: uint256 = (shares_minted * self.token_pool) / self.total_shares)
-    // self.shares[msg.sender] = self.shares[msg.sender] + shares_minted
-    // self.total_shares = self.total_shares + shares_minted
-    // self.eth_pool = self.eth_pool + eth_invested
-    // self.token_pool = self.token_pool + tokens_invested
-    // self.token_address.transferFrom(msg.sender, self, tokens_invested)
 
     //     @public
     // def tokenToTokenSwap(token_addr: address, tokens_sold: uint256):

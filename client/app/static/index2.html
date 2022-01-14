@@ -24,9 +24,14 @@
 </head>
 
 <body>
+  <h1><strong>DEX AMM App<br></strong></h1>
+  <br>
+  <h2><strong>Wallet Opeations<br></strong></h2>
+  <br><strong>The wallet manages your accounts locally. <br> It allows you to create private and public key pairs and store the private keys safely. All private keys are encrypted using a password that you choose and cannot be accessed by anyone who doesn't have your password. The private keys never leave your computer and are only used locally.<br>To perform any of the DEX operations, you will first have to unlock your account using your password.<br></strong>
+  <br>
   <ul>
   <li>
-  <a href="/static/wallet/list_accounts.html">Accounts List</a>
+  <a href="/static/wallet/list_accounts.html">Accounts & Balances</a>
   </li>
   <li>
   <a href="/static/wallet/create_account.html">Create Account</a>
@@ -41,13 +46,6 @@
   </li>
 
   <li>
-  <a href="/static/wallet/account_balance.html">Account Eth Balance</a>
-  </li>
-    <li>
-  <a href="/static/wallet/account_tok_balance.html">Account Tok Balance</a>
-  </li>
-
-  <li>
   <a href="/static/wallet/lock_account.html">Lock Account</a>
   </li>
 
@@ -58,12 +56,23 @@
   <li>
   <a href="/static/wallet/get_account_private_key.html">Get Account Private Key</a>
   </li>
+
+  <li>
+  <a href="/static/wallet/account_balance.html">Account Stats</a>
+  </li>
   </ul>
-
-
+  <br><br>
+  <h2><strong>DEX Opeations<br></strong></h2>
+  <br><strong>The DEX component is what you are here for. It allows you to perform direct trades with tokens (buying and selling), convert between tokens and ethers from the liquidity provided to the pool (after the liquidity pool is initialized with some ETH and tokens) and to provide or burn LQT. <br>
+  To get started, please perform the following 3 steps in that order: <br>
+  1. Initalize the DEX contract using an unlocked account. .<br>
+  2. Buy some tokens from the 'Buy Tokens' operation (you can check Account Stats to see if you have any).<br>
+  3. Initialize the liquidity pool with some ETH and tokens.<br>
+  After the liquidity pool has been initialized, you can use any of the other DEX operations.</strong>
+  <br><br>
   <ul>
     <li>
-      <a href="/static/exchange/create_exchange.html">Open New Exchange</a>
+      <a href="/static/exchange/create_exchange.html">Initialize DEX</a>
     </li>
     <li>
       <a href="/static/exchange/buy_token.html">Buy Token</a>
@@ -78,7 +87,7 @@
       <a href="/static/exchange/initialize_lp.html">Initialize Liquidity Pool</a>
     </li>
     <li>
-      <a href="/static/exchange/lp_balance.html">Liquidity Pool Balance</a>
+      <a href="/static/exchange/lp_balance.html">Liquidity Pool Stats</a>
     </li>
     <li>
       <a href="/static/exchange/lp_deposit.html">Add Liquidity</a>

@@ -98,7 +98,8 @@ def get_accounts():
         for account in list(accounts.keys()):
             tok_balance = contract_manager.getTokBalance(account, wallet)
             accounts[account]['tok_balance'] = tok_balance
-
+            lqt_balance = contract_manager.getLQTBalances(account, wallet)
+            accounts[account]['account_lqt_balance'] = lqt_balance
         return jsonify(accounts)
     except Exception as e:
         print(str(e), flush=True)
