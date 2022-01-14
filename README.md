@@ -30,34 +30,51 @@ All private keys are encrypted using a password that you choose and cannot be ac
 
 Wallet operations available:
 
-- List accounts & balances
+- List Accounts & Balances
 
-- Create account (new key pair)
+- Create Account (new key pair)
 
-- Add existing account
+- Add Existing Account
 
-- Delete account
+- Delete Account
 
-- Lock account (will use your password to encrypt the private key)
+- Lock aAcount (will use your password to encrypt the private key)
 
-- Unlock account
+- Unlock Account
 
-- Get account private key (account must be unlocked first)
+- Get Account Private Key (account must be unlocked first)
 
 To use any account to perform any of the DEX operations, you will first have to unlock your account using your password. The account must be known to the wallet and in unlocked state,
 
 
 ### DEX With AMM
 
-The DEX component is what you are here for. First, it allows you to perform direct trades with tokens (buying and selling). 
+The DEX component is what you are here for. All DEX operations are implemented using smart contracts in a decentralized manner.
+The DEX allows you to perform direct trades with tokens (buying and selling). 
 After the liquidity pool is initialized with both ETH and tokens, it allows one to convert between tokens and ethers from the liquidity provided to the pool, while maintaining the liquidity invariant Balance(ETH) * Balance(Tokens) * Balance(LQT) constant, while charging a 0.2% fee from the conversion amount (either tokens or ETH). 
-The liquidity invariant Balance(ETH) * Balance(Tokens) that will be maintained is determined by the first liquidity provider (the account that initialized the pool with some ETH and tokens), and by setting the initial LQT amount with a 1:5 proportion with the ETH provided.
+The liquidity invariant Balance(ETH) * Balance(Tokens) constant that will be maintained is determined by the first liquidity provider (the account that initialized the pool with some ETH and tokens), and by setting the initial LQT amount with a 1:5 proportion with the ETH provided.
 Also, after the liquidity pool hab been initialized, one can add or burn liquidity. 
 Adding liquidity is possible by providing both (ETH, Tokens) such that they respect the liquidity invariant (invariant stats are available in the relvent page), which grant the liquidity provider LQT.
 The LQT can be later burned to receive ETH and Tokens.
 Stats utilities are also avaialable to see pool details.
 
+DEX operations available:
 
+- Initialize DEX (deploy the DEX smart contract to the blockchain)
+
+- Initialize Liquidity Pool
+
+- Buy Tokens (direct trade)
+
+- Sell Tokens (direct trade)
+
+- Swap Ether for (from liquidity pool, including fee)
+
+- Swap Token for Ether (from liquidity pool, including fee)
+
+- Add Liquidity to Pool (receive LQT)
+
+- Burn Liquidity from Pool (receive ETH and Token)
 
 ### Server Database
 
