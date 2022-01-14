@@ -131,9 +131,9 @@ function getUserLQTBalance(){
         }
         else {
             //document.getElementById('add_liquidity_ratio_btn').remove();
-            user_lqt = '<b>Account LQT Balance: ' + data['user_lqt_balance'] + '</b><br><br>';
+            account_lqt = '<b>Account LQT Balance: ' + data['account_lqt_balance'] + '</b><br><br>';
             total_lqt = '<b>Total LQT Balance: ' + data['total_lqt'] + '</b><br><br>';
-            document.getElementById('burn_liquidity_lqt_balance_res').innerHTML = user_lqt + total_lqt;
+            document.getElementById('burn_liquidity_lqt_balance_res').innerHTML = account_lqt + total_lqt;
             console.log(data);
         }
     }).catch(err => {
@@ -168,7 +168,7 @@ function getLiquidityRatio(){
         else {
             //document.getElementById('add_liquidity_ratio_btn').remove();
             str = '<b>EtH Balance: ' + data['eth_balance'] + '</b><br>' + '<b>\n Token Balance: ' + data['token_balance'] + 
-            '</b><br>' + '<b>\n Liquidity Pool Tokens Balance: ' + data['lp_balance'] + '</b><br>';
+            '</b><br>' + '<b>\n LQT Balance: ' + data['lp_balance'] + '</b><br>';
             ratio_str = '<b>\n Tokens/ETH Ratio: ' + (data['token_balance']/data['eth_balance']) + ':1</b><br>';
             
             document.getElementById('add_liquidity_ratio_res').innerHTML = str + ratio_str;
@@ -254,8 +254,8 @@ function getLPbalance(){
         }
         else {
             document.getElementById('lp_balance_btn').remove();
-            str = '<br><br><br><b>EtH Balance: ' + data['eth_balance'] + '</b><br>' + '<b>\n Token Balance: ' + data['token_balance'] + 
-            '</b><br>' + '<b>\n Liquidity Pool Tokens Balance: ' + data['lp_balance'] + '</b><br>';
+            str = '<br><br><br><b>EtH Balance: ' + data['eth_balance'] + '</b><br>' + '<b>\n Tokens Balance: ' + data['token_balance'] + 
+            '</b><br>' + '<b>\n LQT Balance: ' + data['lp_balance'] + '</b><br>';
             document.getElementById('lp_balance_res').innerHTML = str;
             console.log(data);
         }
@@ -678,8 +678,10 @@ function accountBalance() {
             }
         } else { 
             document.getElementById('account_balance_btn').remove()
-            res = "Account balance is " + data['balance'] + " eth."
-            document.getElementById('account_balance').innerHTML = res;
+            eth = "<strong><br>ETH Balance: " + data['eth_balance'] + "</strong><br>"
+            tok = "<strong><br>Token Balance: " + data['tok_balance'] + "</strong><br>"
+            lqt = "<strong><br>LQT Balance: " + data['lqt_balance'] + "</strong><br>"
+            document.getElementById('account_balance').innerHTML = eth + tok + lqt;
         }
     }).catch(err => {
         console.log("err");

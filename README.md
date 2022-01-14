@@ -44,6 +44,8 @@ Wallet operations available:
 
 - Get Account Private Key (account must be unlocked first)
 
+- Account Stats
+
 To use any account to perform any of the DEX operations, you will first have to unlock your account using your password. The account must be known to the wallet and in unlocked state,
 
 

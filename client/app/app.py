@@ -98,8 +98,8 @@ def get_accounts():
         for account in list(accounts.keys()):
             tok_balance = contract_manager.getTokBalance(account, wallet)
             accounts[account]['tok_balance'] = tok_balance
-            lqt_balance = contract_manager.getLQTBalances(account, wallet)
-            accounts[account]['account_lqt_balance'] = lqt_balance
+            lqt_res = contract_manager.getLQTBalances(account, wallet)
+            accounts[account]['account_lqt_balance'] = lqt_res["account_lqt_balance"] if lqt_res["result"] == "success" else 0
         return jsonify(accounts)
     except Exception as e:
         print(str(e), flush=True)
@@ -286,34 +286,30 @@ def get_account_tok_balance():
 @app.route("/api/account/get_balance", methods=['GET'])
 def get_account_balance():
     try:
-        try:
-            account = request.args.get('account').strip()
-            account = verify_public_key_syntax(account)
-        except (ValueError, TypeError):
-            return jsonify({
-                "result": "fail",
-                "reson": "Params account is invalid"
-            })
-        if account is None:
-            print("Invalid public key", flush=True)
-            return make_response(jsonify({
-                "result": "fail",
-                "reason": "Invalid public key"
-            }), 404)
-        print("Getting balance", flush=True)
-        res = wallet.get_balance(account)
+        account = verify_public_key_syntax(request.args.get('account').strip())
+    except (ValueError, TypeError):
+        return jsonify({
+            "result": "fail",
+            "reson": "Params account not included or invalid"
+        })
+    try:
+        eth_balance = wallet.get_balance(account)
+        tok_res = contract_manager.getTokBalance(account, wallet)
+        tok_balance = tok_res if isinstance(tok_res, int) else 0
+        lqt_res = contract_manager.getLQTBalances(account, wallet)
+        lqt_balance= lqt_res["account_lqt_balance"] if lqt_res["result"] == "success" else 0
         return jsonify({
             "result": "success",
-            "balance": res
-        })
-        
+            "eth_balance": eth_balance,
+            "lqt_balance": lqt_balance,
+            "tok_balance": tok_balance
+            })
     except Exception as e:
         print(str(e), flush=True)
-        return make_response(jsonify({
+        return jsonify({
             "result": "fail",
             "reason": str(e)
-        }),
-        500)
+        })
 
 
 ################################################################################

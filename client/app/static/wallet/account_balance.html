@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Account Balance</title>
+    <title>Account Balances</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
     <style>
       html, body {
@@ -61,14 +61,15 @@
   </head>
   <body>
     <form>
-      <h1>Account Balance</h1>
+      <h1>Account Balances</h1>
+      <strong>Here you can get an (unlocked) account balances - ETH, Tokens and LQT.<br></strong>>
       <div class="formcontainer">
       <hr/>
       <div class="container">
         <label for="sk"><strong>Address (account must be unlocked first)</strong></label>
         <input type="text" placeholder="Enter Account Public Key" id="account_public_key" required>
       </div>
-      <button type="button" id="account_balance_btn" onclick="accountBalance();">Get Balance</button>
+      <button type="button" id="account_balance_btn" onclick="accountBalance();">Get Balances</button>
       <label type=type2 id="account_balance"></label>
       <div class="container" style="background-color: #eee">
       </div>
