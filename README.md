@@ -51,11 +51,12 @@ To use any account to perform any of the DEX operations, you will first have to 
 
 The DEX component is what you are here for. All DEX operations are implemented using smart contracts in a decentralized manner.
 The DEX allows you to perform direct trades with tokens (buying and selling). 
-After the liquidity pool is initialized with both ETH and tokens, it allows one to convert between tokens and ethers from the liquidity provided to the pool, while maintaining the liquidity invariant Balance(ETH) * Balance(Tokens) * Balance(LQT) constant, while charging a 0.2% fee from the conversion amount (either tokens or ETH). 
-The liquidity invariant Balance(ETH) * Balance(Tokens) constant that will be maintained is determined by the first liquidity provider (the account that initialized the pool with some ETH and tokens), and by setting the initial LQT amount with a 1:5 proportion with the ETH provided.
-Also, after the liquidity pool hab been initialized, one can add or burn liquidity. 
-Adding liquidity is possible by providing both (ETH, Tokens) such that they respect the liquidity invariant (invariant stats are available in the relvent page), which grant the liquidity provider LQT.
-The LQT can be later burned to receive ETH and Tokens.
+After the liquidity pool is initialized with both ETH and tokens, it allows one to swap between tokens and ethers from the liquidity in the pool, while maintaining the liquidity invariant Balance(ETH) * Balance(Tokens) * Balance(LQT) constant. A 0.2% fee from the swapping amount (either tokens or ETH) will be charged. 
+The liquidity invariant Balance(ETH) * Balance(Tokens) constant will be maintained throughout any aditional liquidity providing or burning and is determined by the first liquidity provider (the account that initialized the pool with some ETH and tokens). 
+The initial LQT amount minted will be set with a 1:5 proportion with the ETH amount provided.
+As said, after the liquidity pool hab been initialized, one can add or burn liquidity. 
+Adding liquidity is possible by providing both (ETH, Tokens) such that they respect the liquidity invariant (invariant stats are available in the relvent section), which grant the liquidity provider LQT.
+These LQT can be later burned to receive ETH and Tokens.
 Stats utilities are also avaialable to see pool details.
 
 DEX operations available:

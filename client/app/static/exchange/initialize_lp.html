@@ -63,8 +63,9 @@
     <form>
       <h1>Initialize Liquidity Pool</h1>
       <div class="formcontainer">
-      	<strong>The first liquidity provider to invest in the DEX, will deposit some amount of both ETH and the exchange token Tok, which sets the initial exchange rate.</strong>
-      <hr/>
+      	<strong>Here the first liquidity provider will invest in the DEX pool, by depositing some amount of both ETH and Token, which will set the initial exchange rate.</strong><br>
+        <strong>This exchange rate, the liquidity invariant Balance(ETH) * Balance(Tokens) constant, will be maintained throughout any aditional liquidity providing or burning.<br></strong><br/>
+        <strong>The initial LQT amount will be set with a 1:5 proportion with the ETH amount provided.<br></strong>
       <div class="container">
         <label for="sk"><strong>Account Address (must be unlocked first)</strong></label>
         <input type="text" placeholder="Enter Account Address" id="iniitialize_lp_addr" required>
