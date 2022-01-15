@@ -48,7 +48,7 @@ Wallet operations available:
 
 To use any account to perform any of the DEX operations, you will first have to unlock your account using your password. The account must be known to the wallet and in unlocked state,
 
-To your convinience, the wallet already contains 2 funded accounts (with testnet IDCeth), defined with passowrd=1234, which you can use to perform the DEX operations with. 
+For your convenience, the wallet already contains 2 funded accounts (with testnet IDCeth), defined with passowrd=1234, which you can use to perform the DEX operations with. 
 
 ### DEX With AMM
 
