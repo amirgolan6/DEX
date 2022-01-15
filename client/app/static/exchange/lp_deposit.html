@@ -63,8 +63,8 @@
     <form>
       <h1>Add Liquidity to Pool</h1>
       <strong>In order to provide liquidity to the pool, you can first get the current ETH/Token ratio and LQT balance (must enter an unlocked account for this).</strong><br>
-      <strong>Then, enter ETH and Token amounts with the same ratio.</strong><br>
-      <strong>Providing liquidity will grant you liquidity tokens which you can later burn.</strong><br>
+      <strong>Then, enter ETH amount (can be fractional). The number of tokens required to match the ratio will be calculated and presented after investing.</strong><br>
+      <strong>Providing liquidity will grant you liquidity tokens (LQT) which you can later burn. You can view you LQT balance in Account Stats page.</strong><br>
       <div class="formcontainer">
       <hr/>
       <div class="container">
@@ -72,13 +72,8 @@
         <input type="text" placeholder="Enter Account Address" id="add_liquidity_addr" required>
       </div>
         <div class="container">
-        <label for="sk"><strong>ETH Amount</strong></label>
+        <label for="sk"><strong>ETH Amount (in ether, can be fractional e.g 0.3)</strong></label>
         <input type="number" placeholder="Enter Ethers Amount" id="add_liquidity_eth_amount" required>
-      </div>
-      
-       <div class="container">
-        <label for="sk"><strong>Token Amount</strong></label>
-        <input type="number" placeholder="Enter Tokens Amount" id="add_liquidity_token_amount" required>
       </div>
       <button type="button" id="add_liquidity_add_btn" onclick="addLiquidity();">Add Liquidity</button>
       <label type=type2 id="add_liquidity_add_res"></label>

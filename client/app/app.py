@@ -12,7 +12,8 @@ wallet = EthWallet(os.environ['WALLET_DB'])
 
 contract_manager = ClientContractManager()
 app = Flask(__name__)
-
+import logging
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 ### swagger specific ###
 SWAGGER_URL = '/api'
@@ -335,7 +336,7 @@ def create_new_exchange():
 def buy_token():
     try:
         account = verify_public_key_syntax(request.args.get('account').strip())
-        amount = int(request.args.get('amount').strip())
+        amount = float(request.args.get('amount').strip())
     except (ValueError, TypeError):
         return jsonify({
             "result": "fail",
@@ -362,7 +363,7 @@ def token_to_ether():
 def ether_to_token():
     try:
         account = verify_public_key_syntax(request.args.get('account').strip())
-        eth_amount = int(request.args.get('eth_amount').strip())
+        eth_amount = float(request.args.get('eth_amount').strip())
     except (ValueError, TypeError):
         return jsonify({
             "result": "fail",
@@ -378,12 +379,12 @@ def ether_to_token():
 def initialize_lp():
     try:
         account = verify_public_key_syntax(request.args.get('account').strip())
-        eth_amount = int(request.args.get('eth_amount').strip())
+        eth_amount = float(request.args.get('eth_amount').strip())
         token_amount = int(request.args.get('token_amount').strip())
     except (ValueError, TypeError):
         return jsonify({
             "result": "fail",
-            "reson": "Params account not included or invalid"
+            "reson": "Params not included or invalid"
         })
     approve_transfer = contract_manager.tokenApprove(account, token_amount, wallet)
     if approve_transfer['result'] == "fail":
@@ -398,19 +399,26 @@ def initialize_lp():
 def add_liquidity():
     try:
         account = verify_public_key_syntax(request.args.get('account').strip())
-        eth_amount = int(request.args.get('eth_amount').strip())
-        token_amount = int(request.args.get('token_amount').strip())
+        eth_amount = float(request.args.get('eth_amount').strip())
     except (ValueError, TypeError):
         return jsonify({
             "result": "fail",
             "reson": "Params account not included or invalid"
         })
+
+    token_amount = contract_manager.getNumTokensRequired(account, eth_amount, wallet)
     approve_transfer = contract_manager.tokenApprove(account, token_amount, wallet)
     if approve_transfer['result'] == "fail":
         return approve_transfer
     
-    result = contract_manager.addLiquidity(account, token_amount, eth_amount, wallet)
-    return jsonify(result)
+    add_liquidity = contract_manager.addLiquidity(account, token_amount, eth_amount, wallet)
+    if add_liquidity['result'] == "fail":
+        return add_liquidity
+    return jsonify({
+        "result": "success",
+        "token_amount": token_amount,
+        "eth_amount": eth_amount
+        })
 
 
 

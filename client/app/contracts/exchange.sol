@@ -143,10 +143,10 @@ contract DEX {
     }
 
 
-    function buyTokens(uint eth_amount) public payable returns (uint256 tokenAmount) {
-        require(eth_amount > 0, "Send ETH to buy some tokens");
+    function buyTokens() public payable returns (uint256 tokenAmount) {
+        require(msg.value > 0, "Send ETH to buy some tokens");
 
-        uint256 amountToBuy = eth_amount * tokensPerEth;
+        uint256 amountToBuy = (msg.value * tokensPerEth) / (10 ** 18);
 
         // check if the Vendor Contract has enough amount of tokens for the transaction
         uint256 vendorBalance = token.balanceOf(address(this));
@@ -157,7 +157,7 @@ contract DEX {
         require(sent, "Failed to transfer token to user");
 
         // emit the event
-        emit BuyTokens(msg.sender, eth_amount, amountToBuy);
+        emit BuyTokens(msg.sender, msg.value, amountToBuy);
 
         return amountToBuy;
     }
@@ -287,17 +287,18 @@ contract DEX {
         token.transferFrom(msg.sender, address(this), tokens_invested);
     }
 
+    function getNumTokensRequired(uint256 eth_invested) public view returns (uint256){
+        uint256 shares_minted  = (eth_invested * balance_lqt) / balance_eth;
+        uint256 tokens_invested = (shares_minted * balance_tok) / balance_lqt;
+        return tokens_invested;
+    }
 
     function addLiquidity(uint256 tokens_invested) public payable {
         require(initialized_lp == true, "DEX: Liquidity pool not initialized");
-        require(tokens_invested > 0, "You need to sell at least some tokens");
-        require(msg.value > 0, "You need to sell at least some ethers");
+        //require(tokens_invested > 0, "You need to sell at least some tokens");
+        require(msg.value > 0, "You need to deposit at least some ethers");
         uint256 allowance = token.allowance(msg.sender, address(this));
         require(allowance >= tokens_invested, "Check the token allowance");
-
-        uint256 eth_tok_ratio = balance_eth / balance_tok;
-        uint256 lp_ratio =  msg.value  / tokens_invested;
-        require(eth_tok_ratio == lp_ratio, "The liquidity provided does not match the current ETH/Token ratio");
 
         uint256 eth_invested = msg.value;
 
@@ -305,7 +306,6 @@ contract DEX {
         uint256 shares_minted  = (eth_invested * balance_lqt) / balance_eth;
         shares[msg.sender] = shares[msg.sender] + shares_minted;
 
-        //uint256 new_tokens = (shares_minted * balance_tok) / balance_lqt);
         balance_lqt = balance_lqt + shares_minted;
 
         balance_eth = balance_eth + eth_invested;
@@ -314,6 +314,9 @@ contract DEX {
 
     }
 
+    function abs(int x) private pure returns (int) {
+        return x >= 0 ? x : -x;
+    }
 
     function burnLiquidity(uint256 lqt_amount) public {
         require(initialized_lp == true, "DEX: Liquidity pool not initialized");
@@ -345,4 +348,11 @@ contract DEX {
     //     self.eth_pool = new_eth_pool
     //     self.token_pool = new_token_pool
     //     Exchange(exchange).ethToTokenTransfer(msg.sender, value=eth_out)
+
+      //   function price(uint256 input_amount, uint256 input_reserve, uint256 output_reserve) public view returns (uint256) {
+      // uint256 input_amount_with_fee = input_amount.mul(997);
+      // uint256 numerator = input_amount_with_fee.mul(output_reserve);
+      // uint256 denominator = input_reserve.mul(1000).add(input_amount_with_fee);
+      // return numerator / denominator;
+}
 }

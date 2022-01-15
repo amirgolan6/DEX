@@ -158,6 +158,38 @@ class ClientContractManager:
             }
 
 
+    def getNumTokensRequired(self, account_addr, eth_amount, wallet):
+        if not wallet.is_unlocked(account_addr):
+            return {
+                "result": "fail",
+                "reason": "Creating account is not known or it's locked - Try unlocking with password first"
+            }
+        account = wallet.create_w3_account(account_addr)
+        
+        w3.eth.default_account = account.address
+        if self.contract_address == None:
+            return {
+                "result": "fail",
+                "reason": f"DEX doesn't exists. Please create it first"
+        }
+
+        DEX = w3.eth.contract(
+            address=self.contract_address,
+            abi=self.abi
+        )
+
+        try:
+            tokens = DEX.functions.getNumTokensRequired(w3.toWei(eth_amount, 'ether')).call()
+
+        except Exception as e:
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+
+        return tokens
+
+
 
     def addLiquidity(self, account, tok_amount, eth_amount, wallet):
         if not wallet.is_unlocked(account):
@@ -179,7 +211,6 @@ class ClientContractManager:
 
         w3.eth.default_account = w3_account.address
         try:
-
             transaction = DEX.functions.addLiquidity(tok_amount).buildTransaction({
                                     "gasPrice": w3.eth.gas_price, 
                                     "from": account, 
@@ -369,13 +400,18 @@ class ClientContractManager:
 
         w3.eth.default_account = w3_account.address
         try:
-
-            transaction = DEX.functions.buyTokens(amount).buildTransaction({
+            transaction = DEX.functions.buyTokens().buildTransaction({
                                 "gasPrice": w3.eth.gas_price, 
                                 "from": account,
                                 'nonce': w3.eth.get_transaction_count(account),
                                 'value': w3.toWei(amount, 'ether')
                                 })
+            # transaction = DEX.functions.buyTokens(amount).buildTransaction({
+            #                     "gasPrice": w3.eth.gas_price, 
+            #                     "from": account,
+            #                     'nonce': w3.eth.get_transaction_count(account),
+            #                     'value': w3.toWei(amount, 'ether')
+            #                     })
         except Exception as e:
             logging.error(f'error: {e}')  
             return {

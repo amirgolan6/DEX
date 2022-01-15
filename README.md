@@ -52,11 +52,11 @@ To use any account to perform any of the DEX operations, you will first have to 
 ### DEX With AMM
 
 The DEX component is what you are here for. All DEX operations are implemented using smart contracts in a decentralized manner.
-The DEX allows you to perform direct trades with tokens (buying and selling). 
+The DEX allows you to perform direct trades with tokens (buying and selling), with the setting ratio of 100 Tokens per one ETH. 
 After the liquidity pool is initialized with both ETH and tokens, it allows one to swap between tokens and ethers from the liquidity in the pool, while maintaining the liquidity invariant Balance(ETH) * Balance(Tokens) * Balance(LQT) constant. A 0.2% fee from the swapping amount (either tokens or ETH) will be charged. 
 The liquidity invariant Balance(ETH) * Balance(Tokens) constant will be maintained throughout any aditional liquidity providing or burning and is determined by the first liquidity provider (the account that initialized the pool with some ETH and tokens). 
 The initial LQT amount minted will be set with a 1:5 proportion with the ETH amount provided.
-As said, after the liquidity pool hab been initialized, one can add or burn liquidity. 
+As said, after the liquidity pool hab been initialized, one can add or burn liquidity tokens (LQT). 
 Adding liquidity is possible by providing both (ETH, Tokens) such that they respect the liquidity invariant (invariant stats are available in the relvent section), which grant the liquidity provider LQT.
 These LQT can be later burned to receive ETH and Tokens.
 Stats utilities are also avaialable to see pool details.

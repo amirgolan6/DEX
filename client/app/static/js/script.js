@@ -183,9 +183,8 @@ function getLiquidityRatio(){
 function addLiquidity(){
     var account = document.getElementById("add_liquidity_addr").value;
     var eth_amount = document.getElementById("add_liquidity_eth_amount").value;
-    var token_amount = document.getElementById("add_liquidity_token_amount").value;
-    if (eth_amount <= 0 || token_amount <=0){
-       document.getElementById('add_liquidity_add_res').innerHTML = "Both amounts must be greater than zero";
+    if (eth_amount <= 0){
+       document.getElementById('add_liquidity_add_res').innerHTML = "Amount must be greater than zero";
       return;
     }
     if (account == ""){
@@ -195,7 +194,6 @@ function addLiquidity(){
     params = {
         account: account,
         eth_amount: eth_amount,
-        token_amount: token_amount
     }
 
     var apiUrl = new URL('/api/exchange/add_liquidity', document.baseURI);
@@ -216,7 +214,9 @@ function addLiquidity(){
             }
         } else {
             document.getElementById('add_liquidity_add_btn').remove()
-            document.getElementById('add_liquidity_add_res').innerHTML = "<br><br><strong>Added Liquidity to Pool Successfully</strong><br><br>";
+            document.getElementById('add_liquidity_add_res').innerHTML = 
+            "<br><strong>Added Liquidity to Pool Successfully</strong><br>" + 
+            "<br><strong> ETH Invested: " + data['eth_amount'] + ", Tokens Invested: "+ data['token_amount'] + "</strong><br>";
             console.log(data);
         }
     }).catch(err => {
@@ -391,8 +391,9 @@ function createExchange() {
             }
         } else {
             document.getElementById('add_exchange_btn').remove();
-            document.getElementById('add_exchange_addr_res').innerHTML = 'Created DEX with contract address: ' + data['dex_contract_address'] + 
-            ', token contract address: ' + data['token_contract_address'];
+            document.getElementById('add_exchange_addr_res').innerHTML = 
+            '<strong>Created DEX with contract address: ' + data['dex_contract_address'] + '</strong><br>' + 
+            '<strong>Token contract address: ' + data['token_contract_address'] + '</strong><br>';
             console.log(data);
         }
     }).catch(err => {
