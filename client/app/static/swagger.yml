@@ -128,7 +128,7 @@ paths:
     get:
       tags:
       - Accounts
-      summary: List all known accounts.
+      summary: List all known accounts and their respective balances (ETH, Token, LQT).
       responses:
         '200':
           description: OK

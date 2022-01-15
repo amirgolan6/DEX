@@ -1,31 +1,11 @@
-function createAccount() {
-    var password = document.getElementById("new_password").value;
-    if (password == ""){
-      document.getElementById('new_created_account').innerHTML = "Password must be not empty";
-      return;
-    }
-    var apiUrl = new URL('/api/account/create/', document.baseURI),
-    params = {
-    password: password
-    }
-    apiUrl.search = new URLSearchParams(params).toString();
-    document.getElementById('new_created_account').innerHTML = "Creating account...";
-    fetch(apiUrl, {
-        method: 'POST'
-    }).then(response => {
-        return response.json();
-    }).then(data => {
-        document.getElementById('create_account_btn').remove()
-        document.getElementById('new_created_account').innerHTML = "New account created and saved: " + data["public_key"];
-        console.log(data);
-    }).catch(err => {
-        console.log("err");
-        console.log(err);
-    });
-}
+// ################################################################################
+// ################################################################################
+// ######               DEX related scipts:                       #################
+// ################################################################################
+// ################################################################################
+
 
 function initializeLP(){
-
     var account = document.getElementById("iniitialize_lp_addr").value;
     var eth_amount = document.getElementById("iniitialize_lp_eth_amnt").value;
     var token_amount = document.getElementById("iniitialize_lp_token_amnt").value;
@@ -406,43 +386,6 @@ function createExchange() {
 }
 
 
-function getContractDetails(){
-    var account = document.getElementById("contract_details_account_addr").value;
-    var apiUrl = new URL('/api/exchange/details', document.baseURI);
-    params = {
-        account: account
-    }
-    if (account == ""){
-      document.getElementById('add_exchange_addr_res').innerHTML = "Account must be not empty";
-      return;
-    }
-    apiUrl.search = new URLSearchParams(params).toString();
-    //apiUrl.search = new URLSearchParams(params).toString();
-    document.getElementById('get_contract_details_res').innerHTML = "Getting details...";
-    fetch(apiUrl, {
-        method: 'GET'
-    }).then(response => {
-        return response.json();
-    }).then(data => {
-        if (data["result"] == "fail"){
-            console.log(data);
-            document.getElementById('get_contract_details_res').innerHTML = "Error: " + data["reason"];
-        }
-        else {
-            document.getElementById('get_contract_details_btn').remove()
-            str = '<b>DEX Address: ' + data['dex_contract_address'] + '</b><br>' + '<b>\n Token Address: ' + data['token_contract_address'] + 
-            '</b><br>' + '<b>\n ETH Balance: ' + data['eth_balance'] + '</b><br>' + '<b>\n Tokens Quantity in Ether: ' + data['tok_balance'] + '</b><br>' 
-            + '<b>\n Tokens Quantity: ' + data['tok_quantity'] + '</b><br>';
-            document.getElementById('get_contract_details_res').innerHTML = str;
-            console.log(data);
-        }
-    }).catch(err => {
-        console.log(err);
-    
-    });
-}
-
-
 function buyToken(){
     var account = document.getElementById("buy_token_addr").value;
     var amount = document.getElementById("buy_token_amount").value;
@@ -541,6 +484,44 @@ function sellToken(){
 
 
 
+
+
+
+// ################################################################################
+// ################################################################################
+// ######               Account related scipts:                   #################
+// ################################################################################
+// ################################################################################
+
+
+
+
+function createAccount() {
+    var password = document.getElementById("new_password").value;
+    if (password == ""){
+      document.getElementById('new_created_account').innerHTML = "Password must be not empty";
+      return;
+    }
+    var apiUrl = new URL('/api/account/create/', document.baseURI),
+    params = {
+    password: password
+    }
+    apiUrl.search = new URLSearchParams(params).toString();
+    document.getElementById('new_created_account').innerHTML = "Creating account...";
+    fetch(apiUrl, {
+        method: 'POST'
+    }).then(response => {
+        return response.json();
+    }).then(data => {
+        document.getElementById('create_account_btn').remove()
+        document.getElementById('new_created_account').innerHTML = "New account created and saved: " + data["public_key"];
+        console.log(data);
+    }).catch(err => {
+        console.log("err");
+        console.log(err);
+    });
+}
+
 function addExistingAccount() {
     var password = document.getElementById("add_account_password").value;
     var private_key = document.getElementById("add_account_private_key").value;
@@ -614,45 +595,7 @@ function deleteAccount() {
     });
 }
 
-function accountTokBalance(){
-    var account = document.getElementById("account_tok_public_key").value;
-    var apiUrl = new URL('/api/account/get_tok_balance', document.baseURI),
-    params = {
-        account: account
-    }
-    if (account == ""){
-      document.getElementById('account_tok_balance').innerHTML = "Account must be not empty";
-      return;
-    }
-    apiUrl.search = new URLSearchParams(params).toString();
-    document.getElementById('account_tok_balance').innerHTML = "Getting account balance...";
-    fetch(apiUrl, {
-        method: 'GET'
-    }).then(response => {
-        return response.json();
-    }).then(data => {
-        if (data["result"] == "fail"){
-            if (data["reason"] == "Invalid public key"){
-                document.getElementById('account_tok_balance').innerHTML = "Account invalid or doesn't exist";
-            } else {
-                document.getElementById('account_tok_balance').innerHTML = "Error: " + data["reason"];
-            }
-        } else { 
-            document.getElementById('tok_balance_btn').remove();
-            tok_balance = data['tok_balance'] > 0 ? data['tok_balance'] : 0;
-            res = "Account balance is " + tok_balance + " Tok.";
-            document.getElementById('account_tok_balance').innerHTML = res;
-        }
-    }).catch(err => {
-        console.log("err");
-        console.log(err);
-        if (err["reason"] == "Invalid public key"){
-            document.getElementById('account_tok_balance').innerHTML = "Account invalid or doesn't exist";
-        }
-    });
 
-
-}
 
 function accountBalance() {
     var account = document.getElementById("account_public_key").value;
@@ -693,9 +636,6 @@ function accountBalance() {
     });
 }
 
-function wei2eth(num) {
-    return Number(num  / (10**18))
-}
 
 function lockAccount() {
     var account = document.getElementById("lock_account_pk").value;

@@ -406,12 +406,6 @@ class ClientContractManager:
                                 'nonce': w3.eth.get_transaction_count(account),
                                 'value': w3.toWei(amount, 'ether')
                                 })
-            # transaction = DEX.functions.buyTokens(amount).buildTransaction({
-            #                     "gasPrice": w3.eth.gas_price, 
-            #                     "from": account,
-            #                     'nonce': w3.eth.get_transaction_count(account),
-            #                     'value': w3.toWei(amount, 'ether')
-            #                     })
         except Exception as e:
             logging.error(f'error: {e}')  
             return {

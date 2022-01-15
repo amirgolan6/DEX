@@ -109,6 +109,7 @@ def get_accounts():
             "reason": str(e)
         })
 
+
 @app.route("/api/account/unlock", methods=['POST'])
 def unlock_account():
     try:
@@ -250,40 +251,6 @@ def delete_account():
         500)
 
 
-
-
-@app.route("/api/account/get_tok_balance", methods=['GET'])
-def get_account_tok_balance():
-    try:
-        try:
-            account = request.args.get('account').strip()
-            account = verify_public_key_syntax(account)
-        except (ValueError, TypeError):
-            return jsonify({
-                "result": "fail",
-                "reson": "Params account is invalid"
-            })
-        if account is None:
-            print("Invalid public key", flush=True)
-            return make_response(jsonify({
-                "result": "fail",
-                "reason": "Invalid public key"
-            }), 404)
-        print("Getting Tok balance", flush=True)
-        tok_balance = contract_manager.getTokBalance(account, wallet)
-        return jsonify({
-            "result": "success",
-            "tok_balance": tok_balance
-        })
-        
-    except Exception as e:
-        print(str(e), flush=True)
-        return make_response(jsonify({
-            "result": "fail",
-            "reason": str(e)
-        }),
-        500)
-
 @app.route("/api/account/get_balance", methods=['GET'])
 def get_account_balance():
     try:
@@ -332,6 +299,7 @@ def create_new_exchange():
     return jsonify(contract_manager.createNewExchangeContract(account, wallet))
 
 
+
 @app.route("/api/exchange/buy_token", methods=['POST'])
 def buy_token():
     try:
@@ -343,6 +311,9 @@ def buy_token():
             "reson": "Params account not included or invalid"
         })
     return jsonify(contract_manager.buyToken(account, amount, wallet))
+
+
+
 
 @app.route("/api/exchange/token_to_ether", methods=['POST'])
 def token_to_ether():
@@ -359,6 +330,9 @@ def token_to_ether():
         return approve_transfer
     return jsonify(contract_manager.tokenToEther(account, token_amount, wallet))
 
+
+
+
 @app.route("/api/exchange/ether_to_token", methods=['POST'])
 def ether_to_token():
     try:
@@ -370,7 +344,6 @@ def ether_to_token():
             "reson": "Params account not included or invalid"
         })
     return jsonify(contract_manager.etherToToken(account, eth_amount, wallet))
-
 
 
 
@@ -392,6 +365,7 @@ def initialize_lp():
     
     result = contract_manager.initializeLP(account, token_amount, eth_amount, wallet)
     return jsonify(result)
+
 
 
 
@@ -423,7 +397,6 @@ def add_liquidity():
 
 
 
-
 @app.route("/api/exchange/details", methods=['GET'])
 def get_contract_details():
     try:
@@ -435,6 +408,9 @@ def get_contract_details():
         })
     return jsonify(contract_manager.getContractDetails(account, wallet))
 
+
+
+
 @app.route("/api/exchange/lp_balance", methods=['GET'])
 def get_lp_balance():
     try:
@@ -445,6 +421,7 @@ def get_lp_balance():
             "reson": "Params account not included or invalid"
         })
     return jsonify(contract_manager.getLPbalance(account, wallet))
+
 
 
 @app.route("/api/exchange/lqt_balances", methods=['GET'])
@@ -459,6 +436,9 @@ def lqt_balances():
     return jsonify(contract_manager.getLQTBalances(account, wallet))
 
 
+
+
+
 @app.route("/api/exchange/burn_liquidity", methods=['POST'])
 def burn_liquidity():
     try:
@@ -470,6 +450,7 @@ def burn_liquidity():
             "reson": "Params account not included or invalid"
         })
     return jsonify(contract_manager.burnLiquidity(account, lqt_amount, wallet))
+
 
 
 

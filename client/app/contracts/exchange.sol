@@ -49,7 +49,6 @@ contract ERC20Basic is IERC20 {
 
     function transfer(address receiver, uint256 numTokens) public override returns (bool) {
         require(numTokens <= balances[msg.sender]);
-        //balances[msg.sender] = balances[msg.sender].sub(numTokens);
         balances[msg.sender] = balances[msg.sender] - numTokens;
         balances[receiver] = balances[receiver].add(numTokens);
         emit Transfer(msg.sender, receiver, numTokens);
@@ -95,30 +94,22 @@ library SafeMath {
 
 contract DEX {
 
-    // struct Pool {
-    //     uint256 eth_pool;
-    //     uint256 token_pool;
-    // }
-
-    event Bought(uint256 amount);
-    event Sold(uint256 amount);
-
-
     IERC20 public token;
 
     uint256 private balance_tok;
     uint256 private balance_eth;
     uint256 private balance_lqt;
 
-    // token price for ETH
+    // Token price for ETH in direct trading
     uint256 public tokensPerEth = 100;
 
-    uint256 public eth_tok_invariant;
-    uint256 public eth_lqt_invariant;
-
+    // LQT mapping for accounts
     mapping(address => uint256) shares; 
+
+    // Flag for liquidity pool initialization
     bool private initialized_lp;  
-    // Event that log buy operation
+
+    // Events that log buy operation
     event BuyTokens(address buyer, uint256 amountOfETH, uint256 amountOfTokens);
     event SellTokens(address seller, uint256 amountOfTokens, uint256 amountOfETH);
     
@@ -128,14 +119,8 @@ contract DEX {
         balance_tok = 0;
         balance_eth = 0;
         balance_lqt = 0;
-        eth_tok_invariant = 0;
-        eth_lqt_invariant = 0;
         initialized_lp = false;
     }
-
-    // function getPool(IERC20 _token) public view returns (uint256, uint256) {
-    //     return (pools[_token].eth_pool, pools[_token].token_pool);
-    // }
 
 
     function getContractBalance() public view returns (uint256, uint256) { //view amount of ETH and Tok the contract contains
@@ -163,18 +148,18 @@ contract DEX {
     }
 
 
-    function sellTokens(uint256 tokenAmountToSell) public {//returns (bool) {
+    function sellTokens(uint256 tokenAmountToSell) public {
         // Check that the requested amount of tokens to sell is more than 0
         require(tokenAmountToSell > 0, "Specify an amount of token greater than zero");
 
         // Check that the user's token balance is enough to do the swap
         uint256 userBalance = token.balanceOf(msg.sender);
-        require(userBalance > tokenAmountToSell, "Your balance is lower than the amount of tokens you want to sell");
+        require(userBalance >= tokenAmountToSell, "Your balance is lower than the amount of tokens you want to sell");
 
         // Check that the Vendor's balance is enough to do the swap
         uint256 amountOfETHToTransfer = tokenAmountToSell / tokensPerEth;
         uint256 ownerETHBalance = address(this).balance;
-        require(ownerETHBalance > amountOfETHToTransfer, "Vendor has not enough funds to accept the sell request");
+        require(ownerETHBalance >= amountOfETHToTransfer, "Vendor has not enough funds to accept the sell request");
 
         (bool sent) = token.transferFrom(msg.sender, address(this), tokenAmountToSell);
         require(sent, "Failed to transfer tokens from user to vendor");
@@ -195,23 +180,6 @@ contract DEX {
         return token.balanceOf(tokenOwner);
     }
 
-    // function buy() payable public {
-    //     uint256 amountTobuy = msg.value;
-    //     uint256 dexBalance = token.balanceOf(address(this));
-    //     require(amountTobuy > 0, "You need to send some ether");
-    //     require(amountTobuy <= dexBalance, "Not enough tokens in the reserve");
-    //     token.transfer(msg.sender, amountTobuy);
-    //     emit Bought(amountTobuy);
-    // }
-
-    // function sell(uint256 amount) public {
-    //     require(amount > 0, "You need to sell at least some tokens");
-    //     uint256 allowance = token.allowance(msg.sender, address(this));
-    //     require(allowance >= amount, "Check the token allowance");
-    //     token.transferFrom(msg.sender, address(this), amount);
-    //     payable(msg.sender).transfer(amount);
-    //     emit Sold(amount);
-    // }
 
 
     function lpBalance() public view returns (uint256, uint256, uint256) {
@@ -227,6 +195,8 @@ contract DEX {
     function ethToTokenSwap() public payable {
         require(initialized_lp == true, "DEX: Liquidity pool not initialized");
         require(msg.value > 0, "You need to sell at least some ethers");
+
+        // 0.02% fee
         uint256 fee = msg.value / 500;
         uint256 invariant = balance_tok * balance_eth;
 
@@ -247,9 +217,10 @@ contract DEX {
         uint256 allowance = token.allowance(msg.sender, address(this));
         require(allowance >= tokens_in, "Check the token allowance");
         
-
+        // 0.02% fee
         uint256 fee = tokens_in / 500;
         uint256 invariant = balance_tok * balance_eth;
+        
         uint256 new_token_pool = balance_tok + tokens_in;
         uint256 new_eth_pool = invariant / (new_token_pool - fee);
         uint256 eth_out = balance_eth - new_eth_pool;
@@ -275,12 +246,10 @@ contract DEX {
         initialized_lp = true;
         balance_eth = eth_invested;
         balance_tok = tokens_invested;
-        eth_tok_invariant = balance_eth * balance_tok;
 
         //initial liquidity pool token in 1:5 with ETH
         balance_lqt = eth_invested * 5;
         shares[msg.sender] = balance_lqt;
-        eth_lqt_invariant = balance_eth * balance_lqt;
 
         token.transferFrom(msg.sender, address(this), tokens_invested);
     }
@@ -293,7 +262,6 @@ contract DEX {
 
     function addLiquidity(uint256 tokens_invested) public payable {
         require(initialized_lp == true, "DEX: Liquidity pool not initialized");
-        //require(tokens_invested > 0, "You need to sell at least some tokens");
         require(msg.value > 0, "You need to deposit at least some ethers");
         uint256 allowance = token.allowance(msg.sender, address(this));
         require(allowance >= tokens_invested, "Check the token allowance");
@@ -310,10 +278,6 @@ contract DEX {
         balance_tok = balance_tok + tokens_invested;
         token.transferFrom(msg.sender, address(this), tokens_invested);
 
-    }
-
-    function abs(int x) private pure returns (int) {
-        return x >= 0 ? x : -x;
     }
 
     function burnLiquidity(uint256 lqt_amount) public {
