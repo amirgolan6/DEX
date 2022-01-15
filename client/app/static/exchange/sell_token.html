@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Sell Token</title>
+    <title>Sell Tokens</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
     <style>
       html, body {
@@ -61,7 +61,9 @@
   </head>
   <body>
     <form>
-      <h1>Sell Token</h1>
+      <h1>Sell Tokens</h1>
+        <strong>Here you can sell tokens directly (and not from the liquidity pool as done when swapping).<br></strong>
+        <strong>* The DEX must be initalized before performing this.<br></strong>
       <div class="formcontainer">
       <hr/>
       <div class="container">
@@ -69,8 +71,8 @@
         <input type="text" placeholder="Enter Account Address" id="sell_token_addr" required>
       </div>
         <div class="container">
-        <label for="sk"><strong>Amount</strong></label>
-        <input type="number" placeholder="Enter Amount in Ether" id="sell_token_amount" required>
+        <label for="sk"><strong>Token Amount (must be an integer)</strong></label>
+        <input type="number" placeholder="Enter Token Amount" id="sell_token_amount" required>
       </div>
       <button type="button" id="sell_token_btn" onclick="sellToken();">Sell</button>
       <label type=type2 id="sell_token_res"></label>

@@ -482,7 +482,6 @@ class ClientContractManager:
 
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         status_approved = tx_receipt['status']
-        logging.info(f'burn status: {status_approved}')
         if not status_approved:
             return {
                 "result": "fail",
@@ -614,7 +613,6 @@ class ClientContractManager:
 
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         status = tx_receipt['status']
-        logging.info(f'eth2token stats: {status}')
         return {
             "result": "success",
             "reason": f"Successfully sold {eth_amount} ethers for tokens."
@@ -692,32 +690,33 @@ class ClientContractManager:
 
         w3.eth.default_account = w3_account.address
         try:
-            approved = DEX.functions.approve(w3_account.address, amount).call()
-            if not approved:
-                logging.error(f'Failed to sell token, unapproved transaction')
-                return {
-                    "result": "fail",
-                    "reason": "Failed to sell token, unapproved transaction"
-                }
-            sold = DEX.functions.sellTokens(amount).call()
-            logging.info(f"sold:{sold}")
-            if not sold:
-                logging.error(f'Failed to sell token, unapproved transaction')
-                return {
-                    "result": "fail",
-                    "reason": "Failed to sell token, unapproved transaction"
-                }
-
+            transaction = DEX.functions.sellTokens(amount).buildTransaction({
+                                "gasPrice": w3.eth.gas_price, 
+                                "from": account,
+                                'nonce': w3.eth.get_transaction_count(account),
+                                })
+                
         except Exception as e:
             logging.error(f'error: {e}')  
             return {
                 "result": "fail",
                 "reason": str(e)
             }
+        signed_txn = wallet.signTransaction(account, transaction)
 
+        try:
+            tx_hash = w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+        except Exception as e:
+            logging.error(f'error: {e}')
+            return {
+                "result": "fail",
+                "reason": str(e)
+            }
+
+        tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         return {
             "result": "success",
-            "reason": f"Successfully sold {amount} Ether in token from contract {self.contract_address}"
+            "reason": f"Successfully sold {amount} Tokens"
         }
 
 

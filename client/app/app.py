@@ -483,6 +483,9 @@ def sell_token():
             "result": "fail",
             "reson": "Params account not included or invalid"
         })
+    approve_transfer = contract_manager.tokenApprove(account, amount, wallet)
+    if approve_transfer['result'] == "fail":
+        return approve_transfer
     return jsonify(contract_manager.sellToken(account, amount, wallet))
 
 
