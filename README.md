@@ -79,21 +79,6 @@ DEX operations available:
 
 - Burn Liquidity from Pool (receive ETH and Token)
 
-### Server Database
-
-In order to have access to your postgreSQL database, set the following environment variables in the _/docker-compose.yaml_ fileA:
-
-- DB_NAME
-
-- DB_USER
-
-- DB_PASSWORD
-
-- DB_HOST
-
-- DB_PORT
-
-After configuring the correct database the project will be full ready to run.
 
 
 ### Accessing the client
