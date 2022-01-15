@@ -48,6 +48,7 @@ Wallet operations available:
 
 To use any account to perform any of the DEX operations, you will first have to unlock your account using your password. The account must be known to the wallet and in unlocked state,
 
+To your convinience, the wallet already contains 2 funded accounts (with testnet IDCeth), defined with passowrd=1234, which you can use to perform the DEX operations with. 
 
 ### DEX With AMM
 
@@ -67,7 +68,7 @@ DEX operations available:
 
 - Initialize DEX (deploy the DEX smart contract to the blockchain)
 
-- Initialize Liquidity Pool
+- Initialize Liquidity Pool (provide first liquidity to pool and set invariant)
 
 - Buy Tokens (direct trade)
 
@@ -79,7 +80,7 @@ DEX operations available:
 
 - Add Liquidity to Pool (receive LQT)
 
-- Burn Liquidity from Pool (receive ETH and Token)
+- Burn Liquidity (LQT) from Pool (receive ETH and Token)
 
 
 
